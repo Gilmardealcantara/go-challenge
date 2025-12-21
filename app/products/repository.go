@@ -6,7 +6,6 @@ import (
 
 type Repository interface {
 	GetAll() ([]Product, error)
-	GetWithPagination(offset, limit int) ([]Product, error)
 	GetWithFilters(offset, limit int, categoryCode string, priceLessThan *float64) ([]Product, error)
 	Total() (int64, error)
 }
@@ -26,17 +25,6 @@ func (r *repository) GetAll() ([]Product, error) {
 	if err := r.db.Preload("Category").Preload("Variants").Find(&products).Error; err != nil {
 		return nil, err
 	}
-	return products, nil
-}
-
-func (r *repository) GetWithPagination(offset, limit int) ([]Product, error) {
-	var products []Product
-
-	result := r.db.Preload("Category").Preload("Variants").Order("code").Offset(offset).Limit(limit).Find(&products)
-	if result.Error != nil {
-		return nil, result.Error
-	}
-
 	return products, nil
 }
 
