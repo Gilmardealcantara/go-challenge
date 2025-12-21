@@ -58,3 +58,56 @@ func TestQueryInt(t *testing.T) {
 		assert.Equal(t, 0, result)
 	})
 }
+
+func TestQueryFloat(t *testing.T) {
+	t.Run("returns nil when parameter is missing", func(t *testing.T) {
+		req := httptest.NewRequest("GET", "/test", nil)
+		result := QueryFloat(req, "price")
+		assert.Nil(t, result)
+	})
+
+	t.Run("returns parsed value when parameter is provided", func(t *testing.T) {
+		req := httptest.NewRequest("GET", "/test?price=49.99", nil)
+		result := QueryFloat(req, "price")
+		assert.NotNil(t, result)
+		assert.Equal(t, 49.99, *result)
+	})
+
+	t.Run("returns nil when parameter is invalid", func(t *testing.T) {
+		req := httptest.NewRequest("GET", "/test?price=abc", nil)
+		result := QueryFloat(req, "price")
+		assert.Nil(t, result)
+	})
+
+	t.Run("returns nil when parameter is empty string", func(t *testing.T) {
+		req := httptest.NewRequest("GET", "/test?price=", nil)
+		result := QueryFloat(req, "price")
+		assert.Nil(t, result)
+	})
+
+	t.Run("returns nil when parameter is negative", func(t *testing.T) {
+		req := httptest.NewRequest("GET", "/test?price=-10.5", nil)
+		result := QueryFloat(req, "price")
+		assert.Nil(t, result)
+	})
+
+	t.Run("returns nil when parameter is zero", func(t *testing.T) {
+		req := httptest.NewRequest("GET", "/test?price=0", nil)
+		result := QueryFloat(req, "price")
+		assert.Nil(t, result)
+	})
+
+	t.Run("parses large float values", func(t *testing.T) {
+		req := httptest.NewRequest("GET", "/test?price=999999.99", nil)
+		result := QueryFloat(req, "price")
+		assert.NotNil(t, result)
+		assert.Equal(t, 999999.99, *result)
+	})
+
+	t.Run("parses small float values", func(t *testing.T) {
+		req := httptest.NewRequest("GET", "/test?price=0.01", nil)
+		result := QueryFloat(req, "price")
+		assert.NotNil(t, result)
+		assert.Equal(t, 0.01, *result)
+	})
+}

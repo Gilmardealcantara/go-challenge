@@ -38,4 +38,6 @@ Follow up for the assignemnt here: [ASSIGNMENT.md](ASSIGNMENT.md)
 curl -X GET "http://localhost:8484/catalog" | jq
 curl -X GET "http://localhost:8484/catalog?limit=3" | jq
 curl -X GET "http://localhost:8484/catalog?limit=3&offset=2" | jq
+curl -X GET "http://localhost:8484/catalog?category=clothing" | jq
+curl -X GET "http://localhost:8484/catalog?priceLessThan=10.3" | jq
 ```

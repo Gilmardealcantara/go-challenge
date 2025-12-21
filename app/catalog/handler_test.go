@@ -36,7 +36,7 @@ func TestHandlerHandleGet(t *testing.T) {
 		}
 
 		mockRepo := new(mocks.ProductRepository)
-		mockRepo.On("GetProductsWithPagination", 0, 10).Return(mockProducts, int64(2), nil)
+		mockRepo.On("GetProductsWithFilters", 0, 10, "", (*float64)(nil)).Return(mockProducts, int64(2), nil)
 
 		handler := NewHandler(mockRepo)
 
@@ -73,7 +73,7 @@ func TestHandlerHandleGet(t *testing.T) {
 		}
 
 		mockRepo := new(mocks.ProductRepository)
-		mockRepo.On("GetProductsWithPagination", 0, 10).Return(mockProducts, int64(1), nil)
+		mockRepo.On("GetProductsWithFilters", 0, 10, "", (*float64)(nil)).Return(mockProducts, int64(1), nil)
 
 		handler := NewHandler(mockRepo)
 
@@ -97,7 +97,7 @@ func TestHandlerHandleGet(t *testing.T) {
 
 	t.Run("returns empty products list when no products exist", func(t *testing.T) {
 		mockRepo := new(mocks.ProductRepository)
-		mockRepo.On("GetProductsWithPagination", 0, 10).Return([]products.Product{}, int64(0), nil)
+		mockRepo.On("GetProductsWithFilters", 0, 10, "", (*float64)(nil)).Return([]products.Product{}, int64(0), nil)
 
 		handler := NewHandler(mockRepo)
 
@@ -119,7 +119,7 @@ func TestHandlerHandleGet(t *testing.T) {
 
 	t.Run("returns error response when service fails", func(t *testing.T) {
 		mockRepo := new(mocks.ProductRepository)
-		mockRepo.On("GetProductsWithPagination", 0, 10).Return(nil, int64(0), errors.New("database connection failed"))
+		mockRepo.On("GetProductsWithFilters", 0, 10, "", (*float64)(nil)).Return(nil, int64(0), errors.New("database connection failed"))
 
 		handler := NewHandler(mockRepo)
 
@@ -145,7 +145,7 @@ func TestHandlerHandleGet(t *testing.T) {
 		}
 
 		mockRepo := new(mocks.ProductRepository)
-		mockRepo.On("GetProductsWithPagination", 2, 1).Return(mockProducts, int64(8), nil)
+		mockRepo.On("GetProductsWithFilters", 2, 1, "", (*float64)(nil)).Return(mockProducts, int64(8), nil)
 
 		handler := NewHandler(mockRepo)
 
@@ -188,7 +188,7 @@ func TestHandlerHandleGet(t *testing.T) {
 		mockProducts := []products.Product{}
 
 		mockRepo := new(mocks.ProductRepository)
-		mockRepo.On("GetProductsWithPagination", 0, 0).Return(mockProducts, int64(0), nil)
+		mockRepo.On("GetProductsWithFilters", 0, 0, "", (*float64)(nil)).Return(mockProducts, int64(0), nil)
 
 		handler := NewHandler(mockRepo)
 
@@ -206,7 +206,7 @@ func TestHandlerHandleGet(t *testing.T) {
 		mockProducts := []products.Product{}
 
 		mockRepo := new(mocks.ProductRepository)
-		mockRepo.On("GetProductsWithPagination", 0, 10).Return(mockProducts, int64(0), nil)
+		mockRepo.On("GetProductsWithFilters", 0, 10, "", (*float64)(nil)).Return(mockProducts, int64(0), nil)
 
 		handler := NewHandler(mockRepo)
 
@@ -256,5 +256,104 @@ func TestHandlerHandleGet(t *testing.T) {
 		err := json.NewDecoder(recorder.Body).Decode(&errorResponse)
 		assert.NoError(t, err)
 		assert.Equal(t, "limit and offset need to be positive values", errorResponse["error"])
+	})
+
+	t.Run("filters products by category", func(t *testing.T) {
+		mockProducts := []products.Product{
+			{
+				Code:  "PROD001",
+				Price: decimal.NewFromFloat(99.99),
+				Category: &categories.Category{
+					Code: "clothing",
+					Name: "Clothing",
+				},
+			},
+		}
+
+		mockRepo := new(mocks.ProductRepository)
+		mockRepo.On("GetProductsWithFilters", 0, 10, "clothing", (*float64)(nil)).Return(mockProducts, int64(1), nil)
+
+		handler := NewHandler(mockRepo)
+
+		req := httptest.NewRequest("GET", "/catalog?category=clothing", nil)
+		recorder := httptest.NewRecorder()
+
+		handler.HandleGet(recorder, req)
+
+		assert.Equal(t, http.StatusOK, recorder.Code)
+
+		var response Response
+		err := json.NewDecoder(recorder.Body).Decode(&response)
+		assert.NoError(t, err)
+		assert.Len(t, response.Products, 1)
+		assert.Equal(t, int64(1), response.Total)
+		assert.Equal(t, "PROD001", response.Products[0].Code)
+		assert.Equal(t, "clothing", response.Products[0].Category.Code)
+
+		mockRepo.AssertExpectations(t)
+	})
+
+	t.Run("filters products by price less than", func(t *testing.T) {
+		mockProducts := []products.Product{
+			{Code: "PROD002", Price: decimal.NewFromFloat(49.50)},
+			{Code: "PROD003", Price: decimal.NewFromFloat(29.99)},
+		}
+
+		price := 50.0
+		mockRepo := new(mocks.ProductRepository)
+		mockRepo.On("GetProductsWithFilters", 0, 10, "", &price).Return(mockProducts, int64(2), nil)
+
+		handler := NewHandler(mockRepo)
+
+		req := httptest.NewRequest("GET", "/catalog?priceLessThan=50", nil)
+		recorder := httptest.NewRecorder()
+
+		handler.HandleGet(recorder, req)
+
+		assert.Equal(t, http.StatusOK, recorder.Code)
+
+		var response Response
+		err := json.NewDecoder(recorder.Body).Decode(&response)
+		assert.NoError(t, err)
+		assert.Len(t, response.Products, 2)
+		assert.Equal(t, int64(2), response.Total)
+
+		mockRepo.AssertExpectations(t)
+	})
+
+	t.Run("filters products by category and price", func(t *testing.T) {
+		mockProducts := []products.Product{
+			{
+				Code:  "PROD002",
+				Price: decimal.NewFromFloat(49.50),
+				Category: &categories.Category{
+					Code: "shoes",
+					Name: "Shoes",
+				},
+			},
+		}
+
+		price := 50.0
+		mockRepo := new(mocks.ProductRepository)
+		mockRepo.On("GetProductsWithFilters", 0, 10, "shoes", &price).Return(mockProducts, int64(1), nil)
+
+		handler := NewHandler(mockRepo)
+
+		req := httptest.NewRequest("GET", "/catalog?category=shoes&priceLessThan=50", nil)
+		recorder := httptest.NewRecorder()
+
+		handler.HandleGet(recorder, req)
+
+		assert.Equal(t, http.StatusOK, recorder.Code)
+
+		var response Response
+		err := json.NewDecoder(recorder.Body).Decode(&response)
+		assert.NoError(t, err)
+		assert.Len(t, response.Products, 1)
+		assert.Equal(t, int64(1), response.Total)
+		assert.Equal(t, "PROD002", response.Products[0].Code)
+		assert.Equal(t, "shoes", response.Products[0].Category.Code)
+
+		mockRepo.AssertExpectations(t)
 	})
 }

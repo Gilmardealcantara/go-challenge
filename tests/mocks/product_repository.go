@@ -25,3 +25,11 @@ func (m *ProductRepository) GetProductsWithPagination(offset, limit int) ([]prod
 	}
 	return args.Get(0).([]products.Product), args.Get(1).(int64), args.Error(2)
 }
+
+func (m *ProductRepository) GetProductsWithFilters(offset, limit int, categoryCode string, priceLessThan *float64) ([]products.Product, int64, error) {
+	args := m.Called(offset, limit, categoryCode, priceLessThan)
+	if args.Get(0) == nil {
+		return nil, args.Get(1).(int64), args.Error(2)
+	}
+	return args.Get(0).([]products.Product), args.Get(1).(int64), args.Error(2)
+}

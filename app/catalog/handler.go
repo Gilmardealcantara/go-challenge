@@ -50,7 +50,11 @@ func (h *Handler) HandleGet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	products, total, err := h.repo.GetProductsWithPagination(offset, limit)
+	// Parse filter parameters
+	categoryCode := r.URL.Query().Get("category")
+	priceLessThan := api.QueryFloat(r, "priceLessThan")
+
+	products, total, err := h.repo.GetProductsWithFilters(offset, limit, categoryCode, priceLessThan)
 	if err != nil {
 		api.ErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
