@@ -9,6 +9,7 @@ import (
 
 type Response struct {
 	Products []ProductResponse `json:"products"`
+	Total    int64             `json:"total"`
 }
 
 type ProductResponse struct {
@@ -33,7 +34,23 @@ func NewHandler(r products.Repository) *Handler {
 }
 
 func (h *Handler) HandleGet(w http.ResponseWriter, r *http.Request) {
-	products, err := h.repo.GetAllProducts()
+	// Parse pagination parameters using helper
+	offset := api.QueryInt(r, "offset", 0)
+	limit := api.QueryInt(r, "limit", 10)
+
+	if limit < 0 || offset < 0 {
+		errMsg := "limit and offset need to be positive values"
+		api.ErrorResponse(w, http.StatusBadRequest, errMsg)
+		return
+	}
+
+	if limit > 100 {
+		errMsg := "limit cannot be greater than 100"
+		api.ErrorResponse(w, http.StatusBadRequest, errMsg)
+		return
+	}
+
+	products, total, err := h.repo.GetProductsWithPagination(offset, limit)
 	if err != nil {
 		api.ErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
@@ -56,5 +73,5 @@ func (h *Handler) HandleGet(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	api.OKResponse(w, Response{Products: catalogProducts})
+	api.OKResponse(w, Response{Products: catalogProducts, Total: total})
 }

@@ -36,7 +36,7 @@ func TestHandlerHandleGet(t *testing.T) {
 		}
 
 		mockRepo := new(mocks.ProductRepository)
-		mockRepo.On("GetAllProducts").Return(mockProducts, nil)
+		mockRepo.On("GetProductsWithPagination", 0, 10).Return(mockProducts, int64(2), nil)
 
 		handler := NewHandler(mockRepo)
 
@@ -52,6 +52,7 @@ func TestHandlerHandleGet(t *testing.T) {
 		err := json.NewDecoder(recorder.Body).Decode(&response)
 		assert.NoError(t, err)
 		assert.Len(t, response.Products, 2)
+		assert.Equal(t, int64(2), response.Total)
 		assert.Equal(t, "PROD001", response.Products[0].Code)
 		assert.Equal(t, 99.99, response.Products[0].Price)
 		assert.NotNil(t, response.Products[0].Category)
@@ -72,7 +73,7 @@ func TestHandlerHandleGet(t *testing.T) {
 		}
 
 		mockRepo := new(mocks.ProductRepository)
-		mockRepo.On("GetAllProducts").Return(mockProducts, nil)
+		mockRepo.On("GetProductsWithPagination", 0, 10).Return(mockProducts, int64(1), nil)
 
 		handler := NewHandler(mockRepo)
 
@@ -87,6 +88,7 @@ func TestHandlerHandleGet(t *testing.T) {
 		err := json.NewDecoder(recorder.Body).Decode(&response)
 		assert.NoError(t, err)
 		assert.Len(t, response.Products, 1)
+		assert.Equal(t, int64(1), response.Total)
 		assert.Equal(t, "PROD001", response.Products[0].Code)
 		assert.Nil(t, response.Products[0].Category)
 
@@ -95,7 +97,7 @@ func TestHandlerHandleGet(t *testing.T) {
 
 	t.Run("returns empty products list when no products exist", func(t *testing.T) {
 		mockRepo := new(mocks.ProductRepository)
-		mockRepo.On("GetAllProducts").Return([]products.Product{}, nil)
+		mockRepo.On("GetProductsWithPagination", 0, 10).Return([]products.Product{}, int64(0), nil)
 
 		handler := NewHandler(mockRepo)
 
@@ -110,13 +112,14 @@ func TestHandlerHandleGet(t *testing.T) {
 		err := json.NewDecoder(recorder.Body).Decode(&response)
 		assert.NoError(t, err)
 		assert.Empty(t, response.Products)
+		assert.Equal(t, int64(0), response.Total)
 
 		mockRepo.AssertExpectations(t)
 	})
 
 	t.Run("returns error response when service fails", func(t *testing.T) {
 		mockRepo := new(mocks.ProductRepository)
-		mockRepo.On("GetAllProducts").Return(nil, errors.New("database connection failed"))
+		mockRepo.On("GetProductsWithPagination", 0, 10).Return(nil, int64(0), errors.New("database connection failed"))
 
 		handler := NewHandler(mockRepo)
 
@@ -134,5 +137,124 @@ func TestHandlerHandleGet(t *testing.T) {
 		assert.Equal(t, "database connection failed", errorResponse["error"])
 
 		mockRepo.AssertExpectations(t)
+	})
+
+	t.Run("applies custom offset and limit parameters", func(t *testing.T) {
+		mockProducts := []products.Product{
+			{Code: "PROD003", Price: decimal.NewFromFloat(29.99)},
+		}
+
+		mockRepo := new(mocks.ProductRepository)
+		mockRepo.On("GetProductsWithPagination", 2, 1).Return(mockProducts, int64(8), nil)
+
+		handler := NewHandler(mockRepo)
+
+		req := httptest.NewRequest("GET", "/catalog?offset=2&limit=1", nil)
+		recorder := httptest.NewRecorder()
+
+		handler.HandleGet(recorder, req)
+
+		assert.Equal(t, http.StatusOK, recorder.Code)
+
+		var response Response
+		err := json.NewDecoder(recorder.Body).Decode(&response)
+		assert.NoError(t, err)
+		assert.Len(t, response.Products, 1)
+		assert.Equal(t, int64(8), response.Total)
+
+		mockRepo.AssertExpectations(t)
+	})
+
+	t.Run("enforces maximum limit of 100", func(t *testing.T) {
+		mockRepo := new(mocks.ProductRepository)
+
+		handler := NewHandler(mockRepo)
+
+		req := httptest.NewRequest("GET", "/catalog?limit=200", nil)
+		recorder := httptest.NewRecorder()
+
+		handler.HandleGet(recorder, req)
+
+		assert.Equal(t, http.StatusBadRequest, recorder.Code)
+		assert.Equal(t, "application/json", recorder.Header().Get("Content-Type"))
+
+		var errorResponse map[string]string
+		err := json.NewDecoder(recorder.Body).Decode(&errorResponse)
+		assert.NoError(t, err)
+		assert.Equal(t, "limit cannot be greater than 100", errorResponse["error"])
+	})
+
+	t.Run("enforces minimum limit of 1", func(t *testing.T) {
+		mockProducts := []products.Product{}
+
+		mockRepo := new(mocks.ProductRepository)
+		mockRepo.On("GetProductsWithPagination", 0, 0).Return(mockProducts, int64(0), nil)
+
+		handler := NewHandler(mockRepo)
+
+		req := httptest.NewRequest("GET", "/catalog?limit=0", nil)
+		recorder := httptest.NewRecorder()
+
+		handler.HandleGet(recorder, req)
+
+		assert.Equal(t, http.StatusOK, recorder.Code)
+
+		mockRepo.AssertExpectations(t)
+	})
+
+	t.Run("defaults to offset 0 and limit 10 when parameters are missing", func(t *testing.T) {
+		mockProducts := []products.Product{}
+
+		mockRepo := new(mocks.ProductRepository)
+		mockRepo.On("GetProductsWithPagination", 0, 10).Return(mockProducts, int64(0), nil)
+
+		handler := NewHandler(mockRepo)
+
+		req := httptest.NewRequest("GET", "/catalog", nil)
+		recorder := httptest.NewRecorder()
+
+		handler.HandleGet(recorder, req)
+
+		assert.Equal(t, http.StatusOK, recorder.Code)
+
+		mockRepo.AssertExpectations(t)
+	})
+
+	t.Run("returns error when offset is negative", func(t *testing.T) {
+		mockRepo := new(mocks.ProductRepository)
+
+		handler := NewHandler(mockRepo)
+
+		req := httptest.NewRequest("GET", "/catalog?offset=-1", nil)
+		recorder := httptest.NewRecorder()
+
+		handler.HandleGet(recorder, req)
+
+		assert.Equal(t, http.StatusBadRequest, recorder.Code)
+		assert.Equal(t, "application/json", recorder.Header().Get("Content-Type"))
+
+		var errorResponse map[string]string
+		err := json.NewDecoder(recorder.Body).Decode(&errorResponse)
+		assert.NoError(t, err)
+		assert.Equal(t, "limit and offset need to be positive values", errorResponse["error"])
+	})
+
+	t.Run("returns error when limit is negative", func(t *testing.T) {
+		mockRepo := new(mocks.ProductRepository)
+
+		handler := NewHandler(mockRepo)
+
+		req := httptest.NewRequest("GET", "/catalog?limit=-5", nil)
+		recorder := httptest.NewRecorder()
+
+		handler.HandleGet(recorder, req)
+
+		assert.Equal(t, http.StatusBadRequest, recorder.Code)
+		assert.Equal(t, "application/json", recorder.Header().Get("Content-Type"))
+
+		var errorResponse map[string]string
+		err := json.NewDecoder(recorder.Body).Decode(&errorResponse)
+		assert.NoError(t, err)
+		assert.Equal(t, "limit and offset need to be positive values", errorResponse["error"])
 	})
 }

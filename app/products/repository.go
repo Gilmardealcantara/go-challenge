@@ -6,6 +6,7 @@ import (
 
 type Repository interface {
 	GetAllProducts() ([]Product, error)
+	GetProductsWithPagination(offset, limit int) ([]Product, int64, error)
 }
 
 type repository struct {
@@ -24,4 +25,15 @@ func (r *repository) GetAllProducts() ([]Product, error) {
 		return nil, err
 	}
 	return products, nil
+}
+
+func (r *repository) GetProductsWithPagination(offset, limit int) ([]Product, int64, error) {
+	var products []Product
+
+	result := r.db.Preload("Category").Preload("Variants").Order("code").Offset(offset).Limit(limit).Find(&products)
+	if result.Error != nil {
+		return nil, 0, result.Error
+	}
+
+	return products, int64(len(products)), nil
 }

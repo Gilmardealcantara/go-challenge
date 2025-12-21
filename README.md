@@ -32,3 +32,10 @@ This repository contains a Go application for managing products and their prices
   - `make docker-down`: Will stop the docker containers.
 
 Follow up for the assignemnt here: [ASSIGNMENT.md](ASSIGNMENT.md)
+
+## Tests
+```sh
+curl -X GET "http://localhost:8484/catalog" | jq
+curl -X GET "http://localhost:8484/catalog?limit=3" | jq
+curl -X GET "http://localhost:8484/catalog?limit=3&offset=2" | jq
+```
