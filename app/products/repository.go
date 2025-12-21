@@ -5,9 +5,10 @@ import (
 )
 
 type Repository interface {
-	GetAllProducts() ([]Product, error)
-	GetProductsWithPagination(offset, limit int) ([]Product, int64, error)
-	GetProductsWithFilters(offset, limit int, categoryCode string, priceLessThan *float64) ([]Product, int64, error)
+	GetAll() ([]Product, error)
+	GetWithPagination(offset, limit int) ([]Product, error)
+	GetWithFilters(offset, limit int, categoryCode string, priceLessThan *float64) ([]Product, error)
+	Total() (int64, error)
 }
 
 type repository struct {
@@ -20,7 +21,7 @@ func NewRepository(db *gorm.DB) *repository {
 	}
 }
 
-func (r *repository) GetAllProducts() ([]Product, error) {
+func (r *repository) GetAll() ([]Product, error) {
 	var products []Product
 	if err := r.db.Preload("Category").Preload("Variants").Find(&products).Error; err != nil {
 		return nil, err
@@ -28,18 +29,18 @@ func (r *repository) GetAllProducts() ([]Product, error) {
 	return products, nil
 }
 
-func (r *repository) GetProductsWithPagination(offset, limit int) ([]Product, int64, error) {
+func (r *repository) GetWithPagination(offset, limit int) ([]Product, error) {
 	var products []Product
 
 	result := r.db.Preload("Category").Preload("Variants").Order("code").Offset(offset).Limit(limit).Find(&products)
 	if result.Error != nil {
-		return nil, 0, result.Error
+		return nil, result.Error
 	}
 
-	return products, int64(len(products)), nil
+	return products, nil
 }
 
-func (r *repository) GetProductsWithFilters(offset, limit int, categoryCode string, priceLessThan *float64) ([]Product, int64, error) {
+func (r *repository) GetWithFilters(offset, limit int, categoryCode string, priceLessThan *float64) ([]Product, error) {
 	var products []Product
 
 	// Get paginated products
@@ -55,8 +56,16 @@ func (r *repository) GetProductsWithFilters(offset, limit int, categoryCode stri
 	}
 
 	if err := result.Offset(offset).Limit(limit).Find(&products).Error; err != nil {
-		return nil, 0, err
+		return nil, err
 	}
 
-	return products, int64(len(products)), nil
+	return products, nil
+}
+
+func (r *repository) Total() (int64, error) {
+	var count int64
+	if err := r.db.Model(&Product{}).Count(&count).Error; err != nil {
+		return 0, err
+	}
+	return count, nil
 }

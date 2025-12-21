@@ -36,7 +36,8 @@ func TestHandlerHandleGet(t *testing.T) {
 		}
 
 		mockRepo := new(mocks.ProductRepository)
-		mockRepo.On("GetProductsWithFilters", 0, 10, "", (*float64)(nil)).Return(mockProducts, int64(2), nil)
+		mockRepo.On("GetWithFilters", 0, 10, "", (*float64)(nil)).Return(mockProducts, nil)
+		mockRepo.On("Total").Return(int64(2), nil)
 
 		handler := NewHandler(mockRepo)
 
@@ -73,7 +74,8 @@ func TestHandlerHandleGet(t *testing.T) {
 		}
 
 		mockRepo := new(mocks.ProductRepository)
-		mockRepo.On("GetProductsWithFilters", 0, 10, "", (*float64)(nil)).Return(mockProducts, int64(1), nil)
+		mockRepo.On("GetWithFilters", 0, 10, "", (*float64)(nil)).Return(mockProducts, nil)
+		mockRepo.On("Total").Return(int64(1), nil)
 
 		handler := NewHandler(mockRepo)
 
@@ -97,7 +99,8 @@ func TestHandlerHandleGet(t *testing.T) {
 
 	t.Run("returns empty products list when no products exist", func(t *testing.T) {
 		mockRepo := new(mocks.ProductRepository)
-		mockRepo.On("GetProductsWithFilters", 0, 10, "", (*float64)(nil)).Return([]products.Product{}, int64(0), nil)
+		mockRepo.On("GetWithFilters", 0, 10, "", (*float64)(nil)).Return([]products.Product{}, nil)
+		mockRepo.On("Total").Return(int64(0), nil)
 
 		handler := NewHandler(mockRepo)
 
@@ -119,7 +122,7 @@ func TestHandlerHandleGet(t *testing.T) {
 
 	t.Run("returns error response when service fails", func(t *testing.T) {
 		mockRepo := new(mocks.ProductRepository)
-		mockRepo.On("GetProductsWithFilters", 0, 10, "", (*float64)(nil)).Return(nil, int64(0), errors.New("database connection failed"))
+		mockRepo.On("GetWithFilters", 0, 10, "", (*float64)(nil)).Return(nil, errors.New("database connection failed"))
 
 		handler := NewHandler(mockRepo)
 
@@ -145,7 +148,8 @@ func TestHandlerHandleGet(t *testing.T) {
 		}
 
 		mockRepo := new(mocks.ProductRepository)
-		mockRepo.On("GetProductsWithFilters", 2, 1, "", (*float64)(nil)).Return(mockProducts, int64(8), nil)
+		mockRepo.On("GetWithFilters", 2, 1, "", (*float64)(nil)).Return(mockProducts, nil)
+		mockRepo.On("Total").Return(int64(8), nil)
 
 		handler := NewHandler(mockRepo)
 
@@ -188,7 +192,8 @@ func TestHandlerHandleGet(t *testing.T) {
 		mockProducts := []products.Product{}
 
 		mockRepo := new(mocks.ProductRepository)
-		mockRepo.On("GetProductsWithFilters", 0, 0, "", (*float64)(nil)).Return(mockProducts, int64(0), nil)
+		mockRepo.On("GetWithFilters", 0, 0, "", (*float64)(nil)).Return(mockProducts, nil)
+		mockRepo.On("Total").Return(int64(0), nil)
 
 		handler := NewHandler(mockRepo)
 
@@ -206,7 +211,8 @@ func TestHandlerHandleGet(t *testing.T) {
 		mockProducts := []products.Product{}
 
 		mockRepo := new(mocks.ProductRepository)
-		mockRepo.On("GetProductsWithFilters", 0, 10, "", (*float64)(nil)).Return(mockProducts, int64(0), nil)
+		mockRepo.On("GetWithFilters", 0, 10, "", (*float64)(nil)).Return(mockProducts, nil)
+		mockRepo.On("Total").Return(int64(0), nil)
 
 		handler := NewHandler(mockRepo)
 
@@ -271,7 +277,8 @@ func TestHandlerHandleGet(t *testing.T) {
 		}
 
 		mockRepo := new(mocks.ProductRepository)
-		mockRepo.On("GetProductsWithFilters", 0, 10, "clothing", (*float64)(nil)).Return(mockProducts, int64(1), nil)
+		mockRepo.On("GetWithFilters", 0, 10, "clothing", (*float64)(nil)).Return(mockProducts, nil)
+		mockRepo.On("Total").Return(int64(1), nil)
 
 		handler := NewHandler(mockRepo)
 
@@ -301,7 +308,8 @@ func TestHandlerHandleGet(t *testing.T) {
 
 		price := 50.0
 		mockRepo := new(mocks.ProductRepository)
-		mockRepo.On("GetProductsWithFilters", 0, 10, "", &price).Return(mockProducts, int64(2), nil)
+		mockRepo.On("GetWithFilters", 0, 10, "", &price).Return(mockProducts, nil)
+		mockRepo.On("Total").Return(int64(2), nil)
 
 		handler := NewHandler(mockRepo)
 
@@ -335,7 +343,8 @@ func TestHandlerHandleGet(t *testing.T) {
 
 		price := 50.0
 		mockRepo := new(mocks.ProductRepository)
-		mockRepo.On("GetProductsWithFilters", 0, 10, "shoes", &price).Return(mockProducts, int64(1), nil)
+		mockRepo.On("GetWithFilters", 0, 10, "shoes", &price).Return(mockProducts, nil)
+		mockRepo.On("Total").Return(int64(1), nil)
 
 		handler := NewHandler(mockRepo)
 
