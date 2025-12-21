@@ -4,9 +4,16 @@ import (
 	"gorm.io/gorm"
 )
 
+type FilterParams struct {
+	Offset        int
+	Limit         int
+	CategoryCode  string
+	PriceLessThan *float64
+}
+
 type Repository interface {
 	GetAll() ([]Product, error)
-	GetWithFilters(offset, limit int, categoryCode string, priceLessThan *float64) ([]Product, error)
+	GetWithFilters(params FilterParams) ([]Product, error)
 	Total() (int64, error)
 }
 
@@ -28,22 +35,22 @@ func (r *repository) GetAll() ([]Product, error) {
 	return products, nil
 }
 
-func (r *repository) GetWithFilters(offset, limit int, categoryCode string, priceLessThan *float64) ([]Product, error) {
+func (r *repository) GetWithFilters(params FilterParams) ([]Product, error) {
 	var products []Product
 
 	// Get paginated products
 	result := r.db.Preload("Category").Preload("Variants").Order("code")
 
-	if categoryCode != "" {
+	if params.CategoryCode != "" {
 		result = result.Joins("JOIN categories ON categories.id = products.category_id").
-			Where("categories.code = ?", categoryCode)
+			Where("categories.code = ?", params.CategoryCode)
 	}
 
-	if priceLessThan != nil {
-		result = result.Where("price < ?", *priceLessThan)
+	if params.PriceLessThan != nil {
+		result = result.Where("price < ?", *params.PriceLessThan)
 	}
 
-	if err := result.Offset(offset).Limit(limit).Find(&products).Error; err != nil {
+	if err := result.Offset(params.Offset).Limit(params.Limit).Find(&products).Error; err != nil {
 		return nil, err
 	}
 

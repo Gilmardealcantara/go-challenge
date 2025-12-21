@@ -54,7 +54,14 @@ func (h *Handler) HandleGet(w http.ResponseWriter, r *http.Request) {
 	categoryCode := r.URL.Query().Get("category")
 	priceLessThan := api.QueryFloat(r, "priceLessThan")
 
-	products, err := h.repo.GetWithFilters(offset, limit, categoryCode, priceLessThan)
+	params := products.FilterParams{
+		Offset:        offset,
+		Limit:         limit,
+		CategoryCode:  categoryCode,
+		PriceLessThan: priceLessThan,
+	}
+
+	prods, err := h.repo.GetWithFilters(params)
 	if err != nil {
 		api.ErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
@@ -67,8 +74,8 @@ func (h *Handler) HandleGet(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Map domain models to API response models
-	catalogProducts := make([]ProductResponse, len(products))
-	for i, p := range products {
+	catalogProducts := make([]ProductResponse, len(prods))
+	for i, p := range prods {
 		var category *CategoryResponse
 		if p.Category != nil {
 			category = &CategoryResponse{

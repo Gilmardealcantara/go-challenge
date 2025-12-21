@@ -36,7 +36,7 @@ func TestHandlerHandleGet(t *testing.T) {
 		}
 
 		mockRepo := new(mocks.ProductRepository)
-		mockRepo.On("GetWithFilters", 0, 10, "", (*float64)(nil)).Return(mockProducts, nil)
+		mockRepo.On("GetWithFilters", products.FilterParams{Offset: 0, Limit: 10, CategoryCode: "", PriceLessThan: nil}).Return(mockProducts, nil)
 		mockRepo.On("Total").Return(int64(2), nil)
 
 		handler := NewHandler(mockRepo)
@@ -74,7 +74,7 @@ func TestHandlerHandleGet(t *testing.T) {
 		}
 
 		mockRepo := new(mocks.ProductRepository)
-		mockRepo.On("GetWithFilters", 0, 10, "", (*float64)(nil)).Return(mockProducts, nil)
+		mockRepo.On("GetWithFilters", products.FilterParams{Offset: 0, Limit: 10, CategoryCode: "", PriceLessThan: nil}).Return(mockProducts, nil)
 		mockRepo.On("Total").Return(int64(1), nil)
 
 		handler := NewHandler(mockRepo)
@@ -99,7 +99,7 @@ func TestHandlerHandleGet(t *testing.T) {
 
 	t.Run("returns empty products list when no products exist", func(t *testing.T) {
 		mockRepo := new(mocks.ProductRepository)
-		mockRepo.On("GetWithFilters", 0, 10, "", (*float64)(nil)).Return([]products.Product{}, nil)
+		mockRepo.On("GetWithFilters", products.FilterParams{Offset: 0, Limit: 10, CategoryCode: "", PriceLessThan: nil}).Return([]products.Product{}, nil)
 		mockRepo.On("Total").Return(int64(0), nil)
 
 		handler := NewHandler(mockRepo)
@@ -122,7 +122,7 @@ func TestHandlerHandleGet(t *testing.T) {
 
 	t.Run("returns error response when service fails", func(t *testing.T) {
 		mockRepo := new(mocks.ProductRepository)
-		mockRepo.On("GetWithFilters", 0, 10, "", (*float64)(nil)).Return(nil, errors.New("database connection failed"))
+		mockRepo.On("GetWithFilters", products.FilterParams{Offset: 0, Limit: 10, CategoryCode: "", PriceLessThan: nil}).Return(nil, errors.New("database connection failed"))
 
 		handler := NewHandler(mockRepo)
 
@@ -148,7 +148,7 @@ func TestHandlerHandleGet(t *testing.T) {
 		}
 
 		mockRepo := new(mocks.ProductRepository)
-		mockRepo.On("GetWithFilters", 2, 1, "", (*float64)(nil)).Return(mockProducts, nil)
+		mockRepo.On("GetWithFilters", products.FilterParams{Offset: 2, Limit: 1, CategoryCode: "", PriceLessThan: nil}).Return(mockProducts, nil)
 		mockRepo.On("Total").Return(int64(8), nil)
 
 		handler := NewHandler(mockRepo)
@@ -192,7 +192,7 @@ func TestHandlerHandleGet(t *testing.T) {
 		mockProducts := []products.Product{}
 
 		mockRepo := new(mocks.ProductRepository)
-		mockRepo.On("GetWithFilters", 0, 0, "", (*float64)(nil)).Return(mockProducts, nil)
+		mockRepo.On("GetWithFilters", products.FilterParams{Offset: 0, Limit: 0, CategoryCode: "", PriceLessThan: nil}).Return(mockProducts, nil)
 		mockRepo.On("Total").Return(int64(0), nil)
 
 		handler := NewHandler(mockRepo)
@@ -211,7 +211,7 @@ func TestHandlerHandleGet(t *testing.T) {
 		mockProducts := []products.Product{}
 
 		mockRepo := new(mocks.ProductRepository)
-		mockRepo.On("GetWithFilters", 0, 10, "", (*float64)(nil)).Return(mockProducts, nil)
+		mockRepo.On("GetWithFilters", products.FilterParams{Offset: 0, Limit: 10, CategoryCode: "", PriceLessThan: nil}).Return(mockProducts, nil)
 		mockRepo.On("Total").Return(int64(0), nil)
 
 		handler := NewHandler(mockRepo)
@@ -277,7 +277,7 @@ func TestHandlerHandleGet(t *testing.T) {
 		}
 
 		mockRepo := new(mocks.ProductRepository)
-		mockRepo.On("GetWithFilters", 0, 10, "clothing", (*float64)(nil)).Return(mockProducts, nil)
+		mockRepo.On("GetWithFilters", products.FilterParams{Offset: 0, Limit: 10, CategoryCode: "clothing", PriceLessThan: nil}).Return(mockProducts, nil)
 		mockRepo.On("Total").Return(int64(1), nil)
 
 		handler := NewHandler(mockRepo)
@@ -308,7 +308,7 @@ func TestHandlerHandleGet(t *testing.T) {
 
 		price := 50.0
 		mockRepo := new(mocks.ProductRepository)
-		mockRepo.On("GetWithFilters", 0, 10, "", &price).Return(mockProducts, nil)
+		mockRepo.On("GetWithFilters", products.FilterParams{Offset: 0, Limit: 10, CategoryCode: "", PriceLessThan: &price}).Return(mockProducts, nil)
 		mockRepo.On("Total").Return(int64(2), nil)
 
 		handler := NewHandler(mockRepo)
@@ -343,7 +343,7 @@ func TestHandlerHandleGet(t *testing.T) {
 
 		price := 50.0
 		mockRepo := new(mocks.ProductRepository)
-		mockRepo.On("GetWithFilters", 0, 10, "shoes", &price).Return(mockProducts, nil)
+		mockRepo.On("GetWithFilters", products.FilterParams{Offset: 0, Limit: 10, CategoryCode: "shoes", PriceLessThan: &price}).Return(mockProducts, nil)
 		mockRepo.On("Total").Return(int64(1), nil)
 
 		handler := NewHandler(mockRepo)
