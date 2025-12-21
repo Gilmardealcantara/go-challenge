@@ -39,51 +39,17 @@ func (s *RepositoryTestSuite) TestGetAll_ReturnsAllProductsFromDatabase() {
 	assert.True(s.T(), hasVariants, "expected at least one product with variants")
 }
 
-func (s *RepositoryTestSuite) TestGetWithPagination_ReturnsPaginatedProducts() {
-	repo := products.NewRepository(s.DB)
-
-	products, err := repo.GetWithPagination(0, 2)
-
-	assert.NoError(s.T(), err)
-	assert.LessOrEqual(s.T(), len(products), 2)
-}
-
-func (s *RepositoryTestSuite) TestGetWithPagination_RespectsOffsetParameter() {
-	repo := products.NewRepository(s.DB)
-
-	// Get first product
-	firstBatch, err := repo.GetWithPagination(0, 1)
-	assert.NoError(s.T(), err)
-	assert.Len(s.T(), firstBatch, 1)
-
-	// Get second product with offset
-	secondBatch, err := repo.GetWithPagination(1, 1)
-	assert.NoError(s.T(), err)
-	assert.Len(s.T(), secondBatch, 1)
-
-	// Verify they are different products
-	assert.NotEqual(s.T(), firstBatch[0].Code, secondBatch[0].Code)
-}
-
-func (s *RepositoryTestSuite) TestGetWithPagination_RespectsLimitParameter() {
-	repo := products.NewRepository(s.DB)
-
-	products, err := repo.GetWithPagination(0, 3)
-
-	assert.NoError(s.T(), err)
-	assert.LessOrEqual(s.T(), len(products), 3)
-}
-
 func (s *RepositoryTestSuite) TestGetWithFilters_FiltersByCategoryCode() {
 	repo := products.NewRepository(s.DB)
 
-	products, err := repo.GetWithFilters(0, 100, "clothing", nil)
+	params := products.FilterParams{Offset: 0, Limit: 100, CategoryCode: "clothing", PriceLessThan: nil}
+	prods, err := repo.GetWithFilters(params)
 
 	assert.NoError(s.T(), err)
-	assert.Greater(s.T(), len(products), 0)
+	assert.Greater(s.T(), len(prods), 0)
 
 	// Verify all products belong to clothing category
-	for _, p := range products {
+	for _, p := range prods {
 		assert.NotNil(s.T(), p.Category)
 		assert.Equal(s.T(), "clothing", p.Category.Code)
 	}
@@ -93,12 +59,13 @@ func (s *RepositoryTestSuite) TestGetWithFilters_FiltersByPriceLessThan() {
 	repo := products.NewRepository(s.DB)
 
 	price := 10.0
-	products, err := repo.GetWithFilters(0, 100, "", &price)
+	params := products.FilterParams{Offset: 0, Limit: 100, CategoryCode: "", PriceLessThan: &price}
+	prods, err := repo.GetWithFilters(params)
 
 	assert.NoError(s.T(), err)
 
-	assert.Len(s.T(), products, 3)
-	for _, p := range products {
+	assert.Len(s.T(), prods, 3)
+	for _, p := range prods {
 		assert.Less(s.T(), p.Price.InexactFloat64(), 10.0)
 	}
 }
@@ -107,11 +74,12 @@ func (s *RepositoryTestSuite) TestGetWithFilters_FiltersByBothCategoryAndPrice()
 	repo := products.NewRepository(s.DB)
 
 	price := 100.0
-	products, err := repo.GetWithFilters(0, 100, "shoes", &price)
+	params := products.FilterParams{Offset: 0, Limit: 100, CategoryCode: "shoes", PriceLessThan: &price}
+	prods, err := repo.GetWithFilters(params)
 
 	assert.NoError(s.T(), err)
 
-	for _, p := range products {
+	for _, p := range prods {
 		assert.Less(s.T(), p.Price.InexactFloat64(), 100.0)
 		assert.NotNil(s.T(), p.Category)
 		assert.Equal(s.T(), "shoes", p.Category.Code)
@@ -122,30 +90,34 @@ func (s *RepositoryTestSuite) TestGetWithFilters_ReturnsEmptyWhenNoProductsMatch
 	repo := products.NewRepository(s.DB)
 
 	price := 1.0 // Very low price
-	products, err := repo.GetWithFilters(0, 100, "", &price)
+	params := products.FilterParams{Offset: 0, Limit: 100, CategoryCode: "", PriceLessThan: &price}
+	prods, err := repo.GetWithFilters(params)
 
 	assert.NoError(s.T(), err)
-	assert.Empty(s.T(), products)
+	assert.Empty(s.T(), prods)
 }
 
 func (s *RepositoryTestSuite) TestGetWithFilters_ReturnsAllProductsWhenNoFiltersApplied() {
 	repo := products.NewRepository(s.DB)
 
-	products, err := repo.GetWithFilters(0, 100, "", nil)
+	params := products.FilterParams{Offset: 0, Limit: 100, CategoryCode: "", PriceLessThan: nil}
+	prods, err := repo.GetWithFilters(params)
 
 	assert.NoError(s.T(), err)
-	assert.Greater(s.T(), len(products), 0)
+	assert.Greater(s.T(), len(prods), 0)
 }
 
 func (s *RepositoryTestSuite) TestGetWithFilters_RespectsPaginationWithFilters() {
 	repo := products.NewRepository(s.DB)
 
 	// Get first page
-	firstPage, err := repo.GetWithFilters(0, 2, "clothing", nil)
+	params1 := products.FilterParams{Offset: 0, Limit: 2, CategoryCode: "clothing", PriceLessThan: nil}
+	firstPage, err := repo.GetWithFilters(params1)
 	assert.NoError(s.T(), err)
 
 	// Get second page
-	secondPage, err := repo.GetWithFilters(2, 2, "clothing", nil)
+	params2 := products.FilterParams{Offset: 2, Limit: 2, CategoryCode: "clothing", PriceLessThan: nil}
+	secondPage, err := repo.GetWithFilters(params2)
 	assert.NoError(s.T(), err)
 
 	// Verify pages are different (if second page has items)

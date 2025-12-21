@@ -17,6 +17,7 @@ test_i ::
     echo $${DOCKER_HOST} - $${TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE} - $${TESTCONTAINERS_HOST_OVERRIDE} && \
 	go test -v -count=1 -tags=integration ./tests/integration
 
+test_a :: test test_i
 
 docker-up ::
 	docker compose up -d
