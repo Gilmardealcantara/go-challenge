@@ -12,8 +12,14 @@ type Response struct {
 }
 
 type ProductResponse struct {
-	Code  string  `json:"code"`
-	Price float64 `json:"price"`
+	Code     string            `json:"code"`
+	Price    float64           `json:"price"`
+	Category *CategoryResponse `json:"category,omitempty"`
+}
+
+type CategoryResponse struct {
+	Code string `json:"code"`
+	Name string `json:"name"`
 }
 
 type Handler struct {
@@ -36,9 +42,17 @@ func (h *Handler) HandleGet(w http.ResponseWriter, r *http.Request) {
 	// Map domain models to API response models
 	catalogProducts := make([]ProductResponse, len(products))
 	for i, p := range products {
+		var category *CategoryResponse
+		if p.Category != nil {
+			category = &CategoryResponse{
+				Code: p.Category.Code,
+				Name: p.Category.Name,
+			}
+		}
 		catalogProducts[i] = ProductResponse{
-			Code:  p.Code,
-			Price: p.Price.InexactFloat64(),
+			Code:     p.Code,
+			Price:    p.Price.InexactFloat64(),
+			Category: category,
 		}
 	}
 
