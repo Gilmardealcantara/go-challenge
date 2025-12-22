@@ -15,6 +15,7 @@ type Repository interface {
 	GetAll() ([]Product, error)
 	GetWithFilters(params FilterParams) ([]Product, error)
 	Total() (int64, error)
+	GetByCode(code string) (*Product, error)
 }
 
 type repository struct {
@@ -63,4 +64,12 @@ func (r *repository) Total() (int64, error) {
 		return 0, err
 	}
 	return count, nil
+}
+
+func (r *repository) GetByCode(code string) (*Product, error) {
+	var product Product
+	if err := r.db.Preload("Category").Preload("Variants").Where("code = ?", code).First(&product).Error; err != nil {
+		return nil, err
+	}
+	return &product, nil
 }

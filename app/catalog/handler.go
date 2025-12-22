@@ -18,6 +18,19 @@ type ProductResponse struct {
 	Category *CategoryResponse `json:"category,omitempty"`
 }
 
+type ProductDetailsResponse struct {
+	Code     string            `json:"code"`
+	Price    float64           `json:"price"`
+	Category *CategoryResponse `json:"category,omitempty"`
+	Variants []VariantResponse `json:"variants"`
+}
+
+type VariantResponse struct {
+	Name  string  `json:"name"`
+	SKU   string  `json:"sku"`
+	Price float64 `json:"price"`
+}
+
 type CategoryResponse struct {
 	Code string `json:"code"`
 	Name string `json:"name"`
@@ -91,4 +104,45 @@ func (h *Handler) HandleGet(w http.ResponseWriter, r *http.Request) {
 	}
 
 	api.OKResponse(w, Response{Products: catalogProducts, Total: total})
+}
+
+func (h *Handler) HandleGetByCode(w http.ResponseWriter, r *http.Request) {
+	code := r.PathValue("code")
+
+	product, err := h.repo.GetByCode(code)
+	if err != nil {
+		api.ErrorResponse(w, http.StatusNotFound, "product not found")
+		return
+	}
+
+	// Map variants, inheriting price from product if variant price is null
+	variants := make([]VariantResponse, len(product.Variants))
+	for i, v := range product.Variants {
+		price := v.Price.InexactFloat64()
+		if v.Price.IsZero() {
+			price = product.Price.InexactFloat64()
+		}
+		variants[i] = VariantResponse{
+			Name:  v.Name,
+			SKU:   v.SKU,
+			Price: price,
+		}
+	}
+
+	var category *CategoryResponse
+	if product.Category != nil {
+		category = &CategoryResponse{
+			Code: product.Category.Code,
+			Name: product.Category.Name,
+		}
+	}
+
+	response := ProductDetailsResponse{
+		Code:     product.Code,
+		Price:    product.Price.InexactFloat64(),
+		Category: category,
+		Variants: variants,
+	}
+
+	api.OKResponse(w, response)
 }
