@@ -10,13 +10,7 @@ type Handler struct {
 	service Service
 }
 
-func NewHandler(r Repository) *Handler {
-	return &Handler{
-		service: NewService(r),
-	}
-}
-
-func NewHandlerWithService(s Service) *Handler {
+func NewHandler(s Service) *Handler {
 	return &Handler{
 		service: s,
 	}
