@@ -5,11 +5,13 @@ package integration
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"os"
 	"os/exec"
 	"time"
 
 	_ "github.com/lib/pq"
+	"github.com/mytheresa/go-hiring-challenge/app/api/server"
 	"github.com/stretchr/testify/suite"
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/wait"
@@ -27,7 +29,8 @@ var (
 // IntegrationTestSuite provides database setup for integration tests
 type IntegrationTestSuite struct {
 	suite.Suite
-	DB *gorm.DB
+	DB  *gorm.DB
+	mux *http.ServeMux
 }
 
 // SetupSuite runs once before all tests in the suite
@@ -36,6 +39,8 @@ func (s *IntegrationTestSuite) SetupSuite() {
 	container, db, err = initializeContainer()
 	s.Require().NoError(err)
 	s.DB = db
+
+	s.mux = server.Setup(s.DB)
 }
 
 // TearDownSuite runs once after all tests in the suite

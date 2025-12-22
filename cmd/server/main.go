@@ -10,9 +10,8 @@ import (
 	"syscall"
 
 	"github.com/joho/godotenv"
-	"github.com/mytheresa/go-hiring-challenge/app/catalog"
+	"github.com/mytheresa/go-hiring-challenge/app/api/server"
 	"github.com/mytheresa/go-hiring-challenge/app/database"
-	"github.com/mytheresa/go-hiring-challenge/app/products"
 )
 
 func main() {
@@ -34,14 +33,8 @@ func main() {
 	)
 	defer close()
 
-	// Initialize handlers
-	prodRepo := products.NewRepository(db)
-	catHandler := catalog.NewHandler(prodRepo)
-
 	// Set up routing
-	mux := http.NewServeMux()
-	mux.HandleFunc("GET /catalog", catHandler.HandleGet)
-	mux.HandleFunc("GET /catalog/{code}", catHandler.HandleGetByCode)
+	mux := server.Setup(db)
 
 	// Set up the HTTP server
 	srv := &http.Server{

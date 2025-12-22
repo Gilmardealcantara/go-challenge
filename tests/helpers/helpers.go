@@ -12,10 +12,10 @@ import (
 )
 
 // MakeRequest makes an HTTP request and records the response
-func MakeRequest(t *testing.T, handler http.HandlerFunc, method, url string) *httptest.ResponseRecorder {
+func MakeRequest(t *testing.T, mux *http.ServeMux, method, url string) *httptest.ResponseRecorder {
 	req := httptest.NewRequest(method, url, nil)
 	recorder := httptest.NewRecorder()
-	handler(recorder, req)
+	mux.ServeHTTP(recorder, req)
 	return recorder
 }
 

@@ -3,9 +3,9 @@ package catalog_test
 import (
 	"errors"
 	"net/http"
-	"net/http/httptest"
 	"testing"
 
+	"github.com/mytheresa/go-hiring-challenge/app/api/server"
 	"github.com/mytheresa/go-hiring-challenge/app/catalog"
 	"github.com/mytheresa/go-hiring-challenge/app/categories"
 	"github.com/mytheresa/go-hiring-challenge/app/products"
@@ -41,8 +41,8 @@ func TestHandlerHandleGet(t *testing.T) {
 		mockRepo.On("GetWithFilters", products.FilterParams{Offset: 0, Limit: 10, CategoryCode: "", PriceLessThan: nil}).Return(mockProducts, nil)
 		mockRepo.On("Total").Return(int64(2), nil)
 
-		handler := catalog.NewHandler(mockRepo)
-		recorder := helpers.MakeRequest(t, handler.HandleGet, "GET", "/catalog")
+		mux := server.SetupRoutes(catalog.NewHandler(mockRepo))
+		recorder := helpers.MakeRequest(t, mux, "GET", "/catalog")
 		response := helpers.DecodeCatalogResponse(t, recorder)
 
 		assert.Equal(t, http.StatusOK, recorder.Code)
@@ -72,8 +72,8 @@ func TestHandlerHandleGet(t *testing.T) {
 		mockRepo.On("GetWithFilters", products.FilterParams{Offset: 0, Limit: 10, CategoryCode: "", PriceLessThan: nil}).Return(mockProducts, nil)
 		mockRepo.On("Total").Return(int64(1), nil)
 
-		handler := catalog.NewHandler(mockRepo)
-		recorder := helpers.MakeRequest(t, handler.HandleGet, "GET", "/catalog")
+		mux := server.SetupRoutes(catalog.NewHandler(mockRepo))
+		recorder := helpers.MakeRequest(t, mux, "GET", "/catalog")
 		response := helpers.DecodeCatalogResponse(t, recorder)
 
 		assert.Equal(t, http.StatusOK, recorder.Code)
@@ -90,8 +90,8 @@ func TestHandlerHandleGet(t *testing.T) {
 		mockRepo.On("GetWithFilters", products.FilterParams{Offset: 0, Limit: 10, CategoryCode: "", PriceLessThan: nil}).Return([]products.Product{}, nil)
 		mockRepo.On("Total").Return(int64(0), nil)
 
-		handler := catalog.NewHandler(mockRepo)
-		recorder := helpers.MakeRequest(t, handler.HandleGet, "GET", "/catalog")
+		mux := server.SetupRoutes(catalog.NewHandler(mockRepo))
+		recorder := helpers.MakeRequest(t, mux, "GET", "/catalog")
 		response := helpers.DecodeCatalogResponse(t, recorder)
 
 		assert.Equal(t, http.StatusOK, recorder.Code)
@@ -105,8 +105,8 @@ func TestHandlerHandleGet(t *testing.T) {
 		mockRepo := new(mocks.ProductRepository)
 		mockRepo.On("GetWithFilters", products.FilterParams{Offset: 0, Limit: 10, CategoryCode: "", PriceLessThan: nil}).Return(nil, errors.New("database connection failed"))
 
-		handler := catalog.NewHandler(mockRepo)
-		recorder := helpers.MakeRequest(t, handler.HandleGet, "GET", "/catalog")
+		mux := server.SetupRoutes(catalog.NewHandler(mockRepo))
+		recorder := helpers.MakeRequest(t, mux, "GET", "/catalog")
 		errorResponse := helpers.DecodeErrorResponse(t, recorder)
 
 		assert.Equal(t, http.StatusInternalServerError, recorder.Code)
@@ -125,8 +125,8 @@ func TestHandlerHandleGet(t *testing.T) {
 		mockRepo.On("GetWithFilters", products.FilterParams{Offset: 2, Limit: 1, CategoryCode: "", PriceLessThan: nil}).Return(mockProducts, nil)
 		mockRepo.On("Total").Return(int64(8), nil)
 
-		handler := catalog.NewHandler(mockRepo)
-		recorder := helpers.MakeRequest(t, handler.HandleGet, "GET", "/catalog?offset=2&limit=1")
+		mux := server.SetupRoutes(catalog.NewHandler(mockRepo))
+		recorder := helpers.MakeRequest(t, mux, "GET", "/catalog?offset=2&limit=1")
 		response := helpers.DecodeCatalogResponse(t, recorder)
 
 		assert.Equal(t, http.StatusOK, recorder.Code)
@@ -138,8 +138,8 @@ func TestHandlerHandleGet(t *testing.T) {
 
 	t.Run("enforces maximum limit of 100", func(t *testing.T) {
 		mockRepo := new(mocks.ProductRepository)
-		handler := catalog.NewHandler(mockRepo)
-		recorder := helpers.MakeRequest(t, handler.HandleGet, "GET", "/catalog?limit=200")
+		mux := server.SetupRoutes(catalog.NewHandler(mockRepo))
+		recorder := helpers.MakeRequest(t, mux, "GET", "/catalog?limit=200")
 		errorResponse := helpers.DecodeErrorResponse(t, recorder)
 
 		assert.Equal(t, http.StatusBadRequest, recorder.Code)
@@ -154,8 +154,8 @@ func TestHandlerHandleGet(t *testing.T) {
 		mockRepo.On("GetWithFilters", products.FilterParams{Offset: 0, Limit: 0, CategoryCode: "", PriceLessThan: nil}).Return(mockProducts, nil)
 		mockRepo.On("Total").Return(int64(0), nil)
 
-		handler := catalog.NewHandler(mockRepo)
-		recorder := helpers.MakeRequest(t, handler.HandleGet, "GET", "/catalog?limit=0")
+		mux := server.SetupRoutes(catalog.NewHandler(mockRepo))
+		recorder := helpers.MakeRequest(t, mux, "GET", "/catalog?limit=0")
 
 		assert.Equal(t, http.StatusOK, recorder.Code)
 
@@ -169,8 +169,8 @@ func TestHandlerHandleGet(t *testing.T) {
 		mockRepo.On("GetWithFilters", products.FilterParams{Offset: 0, Limit: 10, CategoryCode: "", PriceLessThan: nil}).Return(mockProducts, nil)
 		mockRepo.On("Total").Return(int64(0), nil)
 
-		handler := catalog.NewHandler(mockRepo)
-		recorder := helpers.MakeRequest(t, handler.HandleGet, "GET", "/catalog")
+		mux := server.SetupRoutes(catalog.NewHandler(mockRepo))
+		recorder := helpers.MakeRequest(t, mux, "GET", "/catalog")
 
 		assert.Equal(t, http.StatusOK, recorder.Code)
 
@@ -179,8 +179,8 @@ func TestHandlerHandleGet(t *testing.T) {
 
 	t.Run("returns error when offset is negative", func(t *testing.T) {
 		mockRepo := new(mocks.ProductRepository)
-		handler := catalog.NewHandler(mockRepo)
-		recorder := helpers.MakeRequest(t, handler.HandleGet, "GET", "/catalog?offset=-1")
+		mux := server.SetupRoutes(catalog.NewHandler(mockRepo))
+		recorder := helpers.MakeRequest(t, mux, "GET", "/catalog?offset=-1")
 		errorResponse := helpers.DecodeErrorResponse(t, recorder)
 
 		assert.Equal(t, http.StatusBadRequest, recorder.Code)
@@ -190,8 +190,8 @@ func TestHandlerHandleGet(t *testing.T) {
 
 	t.Run("returns error when limit is negative", func(t *testing.T) {
 		mockRepo := new(mocks.ProductRepository)
-		handler := catalog.NewHandler(mockRepo)
-		recorder := helpers.MakeRequest(t, handler.HandleGet, "GET", "/catalog?limit=-5")
+		mux := server.SetupRoutes(catalog.NewHandler(mockRepo))
+		recorder := helpers.MakeRequest(t, mux, "GET", "/catalog?limit=-5")
 		errorResponse := helpers.DecodeErrorResponse(t, recorder)
 
 		assert.Equal(t, http.StatusBadRequest, recorder.Code)
@@ -215,8 +215,8 @@ func TestHandlerHandleGet(t *testing.T) {
 		mockRepo.On("GetWithFilters", products.FilterParams{Offset: 0, Limit: 10, CategoryCode: "clothing", PriceLessThan: nil}).Return(mockProducts, nil)
 		mockRepo.On("Total").Return(int64(1), nil)
 
-		handler := catalog.NewHandler(mockRepo)
-		recorder := helpers.MakeRequest(t, handler.HandleGet, "GET", "/catalog?category=clothing")
+		mux := server.SetupRoutes(catalog.NewHandler(mockRepo))
+		recorder := helpers.MakeRequest(t, mux, "GET", "/catalog?category=clothing")
 		response := helpers.DecodeCatalogResponse(t, recorder)
 
 		assert.Equal(t, http.StatusOK, recorder.Code)
@@ -239,8 +239,8 @@ func TestHandlerHandleGet(t *testing.T) {
 		mockRepo.On("GetWithFilters", products.FilterParams{Offset: 0, Limit: 10, CategoryCode: "", PriceLessThan: &price}).Return(mockProducts, nil)
 		mockRepo.On("Total").Return(int64(2), nil)
 
-		handler := catalog.NewHandler(mockRepo)
-		recorder := helpers.MakeRequest(t, handler.HandleGet, "GET", "/catalog?priceLessThan=50")
+		mux := server.SetupRoutes(catalog.NewHandler(mockRepo))
+		recorder := helpers.MakeRequest(t, mux, "GET", "/catalog?priceLessThan=50")
 		response := helpers.DecodeCatalogResponse(t, recorder)
 
 		assert.Equal(t, http.StatusOK, recorder.Code)
@@ -267,8 +267,8 @@ func TestHandlerHandleGet(t *testing.T) {
 		mockRepo.On("GetWithFilters", products.FilterParams{Offset: 0, Limit: 10, CategoryCode: "shoes", PriceLessThan: &price}).Return(mockProducts, nil)
 		mockRepo.On("Total").Return(int64(1), nil)
 
-		handler := catalog.NewHandler(mockRepo)
-		recorder := helpers.MakeRequest(t, handler.HandleGet, "GET", "/catalog?category=shoes&priceLessThan=50")
+		mux := server.SetupRoutes(catalog.NewHandler(mockRepo))
+		recorder := helpers.MakeRequest(t, mux, "GET", "/catalog?category=shoes&priceLessThan=50")
 		response := helpers.DecodeCatalogResponse(t, recorder)
 
 		assert.Equal(t, http.StatusOK, recorder.Code)
@@ -307,14 +307,8 @@ func TestHandlerHandleGetByCode(t *testing.T) {
 		mockRepo := new(mocks.ProductRepository)
 		mockRepo.On("GetByCode", "PROD001").Return(mockProduct, nil)
 
-		handler := catalog.NewHandler(mockRepo)
-		mux := http.NewServeMux()
-		mux.HandleFunc("GET /catalog/{code}", handler.HandleGetByCode)
-
-		req := httptest.NewRequest("GET", "/catalog/PROD001", nil)
-		recorder := httptest.NewRecorder()
-		mux.ServeHTTP(recorder, req)
-
+		mux := server.SetupRoutes(catalog.NewHandler(mockRepo))
+		recorder := helpers.MakeRequest(t, mux, "GET", "/catalog/PROD001")
 		response := helpers.DecodeProductDetailsResponse(t, recorder)
 
 		assert.Equal(t, http.StatusOK, recorder.Code)
@@ -360,14 +354,8 @@ func TestHandlerHandleGetByCode(t *testing.T) {
 		mockRepo := new(mocks.ProductRepository)
 		mockRepo.On("GetByCode", "PROD002").Return(mockProduct, nil)
 
-		handler := catalog.NewHandler(mockRepo)
-		mux := http.NewServeMux()
-		mux.HandleFunc("GET /catalog/{code}", handler.HandleGetByCode)
-
-		req := httptest.NewRequest("GET", "/catalog/PROD002", nil)
-		recorder := httptest.NewRecorder()
-		mux.ServeHTTP(recorder, req)
-
+		mux := server.SetupRoutes(catalog.NewHandler(mockRepo))
+		recorder := helpers.MakeRequest(t, mux, "GET", "/catalog/PROD002")
 		response := helpers.DecodeProductDetailsResponse(t, recorder)
 
 		assert.Equal(t, http.StatusOK, recorder.Code)
@@ -395,14 +383,8 @@ func TestHandlerHandleGetByCode(t *testing.T) {
 		mockRepo := new(mocks.ProductRepository)
 		mockRepo.On("GetByCode", "PROD003").Return(mockProduct, nil)
 
-		handler := catalog.NewHandler(mockRepo)
-		mux := http.NewServeMux()
-		mux.HandleFunc("GET /catalog/{code}", handler.HandleGetByCode)
-
-		req := httptest.NewRequest("GET", "/catalog/PROD003", nil)
-		recorder := httptest.NewRecorder()
-		mux.ServeHTTP(recorder, req)
-
+		mux := server.SetupRoutes(catalog.NewHandler(mockRepo))
+		recorder := helpers.MakeRequest(t, mux, "GET", "/catalog/PROD003")
 		response := helpers.DecodeProductDetailsResponse(t, recorder)
 
 		assert.Equal(t, http.StatusOK, recorder.Code)
@@ -427,14 +409,8 @@ func TestHandlerHandleGetByCode(t *testing.T) {
 		mockRepo := new(mocks.ProductRepository)
 		mockRepo.On("GetByCode", "PROD004").Return(mockProduct, nil)
 
-		handler := catalog.NewHandler(mockRepo)
-		mux := http.NewServeMux()
-		mux.HandleFunc("GET /catalog/{code}", handler.HandleGetByCode)
-
-		req := httptest.NewRequest("GET", "/catalog/PROD004", nil)
-		recorder := httptest.NewRecorder()
-		mux.ServeHTTP(recorder, req)
-
+		mux := server.SetupRoutes(catalog.NewHandler(mockRepo))
+		recorder := helpers.MakeRequest(t, mux, "GET", "/catalog/PROD004")
 		response := helpers.DecodeProductDetailsResponse(t, recorder)
 
 		assert.Equal(t, http.StatusOK, recorder.Code)
@@ -449,14 +425,8 @@ func TestHandlerHandleGetByCode(t *testing.T) {
 		mockRepo := new(mocks.ProductRepository)
 		mockRepo.On("GetByCode", "INVALID").Return(nil, errors.New("record not found"))
 
-		handler := catalog.NewHandler(mockRepo)
-		mux := http.NewServeMux()
-		mux.HandleFunc("GET /catalog/{code}", handler.HandleGetByCode)
-
-		req := httptest.NewRequest("GET", "/catalog/INVALID", nil)
-		recorder := httptest.NewRecorder()
-		mux.ServeHTTP(recorder, req)
-
+		mux := server.SetupRoutes(catalog.NewHandler(mockRepo))
+		recorder := helpers.MakeRequest(t, mux, "GET", "/catalog/INVALID")
 		errorResponse := helpers.DecodeErrorResponse(t, recorder)
 
 		assert.Equal(t, http.StatusNotFound, recorder.Code)
