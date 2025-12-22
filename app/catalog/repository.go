@@ -1,4 +1,4 @@
-package products
+package catalog
 
 import (
 	"gorm.io/gorm"

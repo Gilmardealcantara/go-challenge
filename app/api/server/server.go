@@ -4,13 +4,12 @@ import (
 	"net/http"
 
 	"github.com/mytheresa/go-hiring-challenge/app/catalog"
-	"github.com/mytheresa/go-hiring-challenge/app/products"
 	"gorm.io/gorm"
 )
 
 func Setup(db *gorm.DB) *http.ServeMux {
 	// Initialize handlers
-	prodRepo := products.NewRepository(db)
+	prodRepo := catalog.NewRepository(db)
 	catHandler := catalog.NewHandler(prodRepo)
 
 	return SetupRoutes(catHandler)

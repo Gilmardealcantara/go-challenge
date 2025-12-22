@@ -5,7 +5,7 @@ package integration
 import (
 	"testing"
 
-	"github.com/mytheresa/go-hiring-challenge/app/products"
+	"github.com/mytheresa/go-hiring-challenge/app/catalog"
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
@@ -20,7 +20,7 @@ func TestRepositorySuite(t *testing.T) {
 }
 
 func (s *RepositoryTestSuite) TestGetAll_ReturnsAllProductsFromDatabase() {
-	repo := products.NewRepository(s.DB)
+	repo := catalog.NewRepository(s.DB)
 
 	products, err := repo.GetAll()
 
@@ -40,9 +40,9 @@ func (s *RepositoryTestSuite) TestGetAll_ReturnsAllProductsFromDatabase() {
 }
 
 func (s *RepositoryTestSuite) TestGetWithFilters_FiltersByCategoryCode() {
-	repo := products.NewRepository(s.DB)
+	repo := catalog.NewRepository(s.DB)
 
-	params := products.FilterParams{Offset: 0, Limit: 100, CategoryCode: "clothing", PriceLessThan: nil}
+	params := catalog.FilterParams{Offset: 0, Limit: 100, CategoryCode: "clothing", PriceLessThan: nil}
 	prods, err := repo.GetWithFilters(params)
 
 	assert.NoError(s.T(), err)
@@ -56,10 +56,10 @@ func (s *RepositoryTestSuite) TestGetWithFilters_FiltersByCategoryCode() {
 }
 
 func (s *RepositoryTestSuite) TestGetWithFilters_FiltersByPriceLessThan() {
-	repo := products.NewRepository(s.DB)
+	repo := catalog.NewRepository(s.DB)
 
 	price := 10.0
-	params := products.FilterParams{Offset: 0, Limit: 100, CategoryCode: "", PriceLessThan: &price}
+	params := catalog.FilterParams{Offset: 0, Limit: 100, CategoryCode: "", PriceLessThan: &price}
 	prods, err := repo.GetWithFilters(params)
 
 	assert.NoError(s.T(), err)
@@ -71,10 +71,10 @@ func (s *RepositoryTestSuite) TestGetWithFilters_FiltersByPriceLessThan() {
 }
 
 func (s *RepositoryTestSuite) TestGetWithFilters_FiltersByBothCategoryAndPrice() {
-	repo := products.NewRepository(s.DB)
+	repo := catalog.NewRepository(s.DB)
 
 	price := 100.0
-	params := products.FilterParams{Offset: 0, Limit: 100, CategoryCode: "shoes", PriceLessThan: &price}
+	params := catalog.FilterParams{Offset: 0, Limit: 100, CategoryCode: "shoes", PriceLessThan: &price}
 	prods, err := repo.GetWithFilters(params)
 
 	assert.NoError(s.T(), err)
@@ -87,10 +87,10 @@ func (s *RepositoryTestSuite) TestGetWithFilters_FiltersByBothCategoryAndPrice()
 }
 
 func (s *RepositoryTestSuite) TestGetWithFilters_ReturnsEmptyWhenNoProductsMatchFilters() {
-	repo := products.NewRepository(s.DB)
+	repo := catalog.NewRepository(s.DB)
 
 	price := 1.0 // Very low price
-	params := products.FilterParams{Offset: 0, Limit: 100, CategoryCode: "", PriceLessThan: &price}
+	params := catalog.FilterParams{Offset: 0, Limit: 100, CategoryCode: "", PriceLessThan: &price}
 	prods, err := repo.GetWithFilters(params)
 
 	assert.NoError(s.T(), err)
@@ -98,9 +98,9 @@ func (s *RepositoryTestSuite) TestGetWithFilters_ReturnsEmptyWhenNoProductsMatch
 }
 
 func (s *RepositoryTestSuite) TestGetWithFilters_ReturnsAllProductsWhenNoFiltersApplied() {
-	repo := products.NewRepository(s.DB)
+	repo := catalog.NewRepository(s.DB)
 
-	params := products.FilterParams{Offset: 0, Limit: 100, CategoryCode: "", PriceLessThan: nil}
+	params := catalog.FilterParams{Offset: 0, Limit: 100, CategoryCode: "", PriceLessThan: nil}
 	prods, err := repo.GetWithFilters(params)
 
 	assert.NoError(s.T(), err)
@@ -108,15 +108,15 @@ func (s *RepositoryTestSuite) TestGetWithFilters_ReturnsAllProductsWhenNoFilters
 }
 
 func (s *RepositoryTestSuite) TestGetWithFilters_RespectsPaginationWithFilters() {
-	repo := products.NewRepository(s.DB)
+	repo := catalog.NewRepository(s.DB)
 
 	// Get first page
-	params1 := products.FilterParams{Offset: 0, Limit: 2, CategoryCode: "clothing", PriceLessThan: nil}
+	params1 := catalog.FilterParams{Offset: 0, Limit: 2, CategoryCode: "clothing", PriceLessThan: nil}
 	firstPage, err := repo.GetWithFilters(params1)
 	assert.NoError(s.T(), err)
 
 	// Get second page
-	params2 := products.FilterParams{Offset: 2, Limit: 2, CategoryCode: "clothing", PriceLessThan: nil}
+	params2 := catalog.FilterParams{Offset: 2, Limit: 2, CategoryCode: "clothing", PriceLessThan: nil}
 	secondPage, err := repo.GetWithFilters(params2)
 	assert.NoError(s.T(), err)
 
@@ -127,7 +127,7 @@ func (s *RepositoryTestSuite) TestGetWithFilters_RespectsPaginationWithFilters()
 }
 
 func (s *RepositoryTestSuite) TestTotal_ReturnsTotalProductCount() {
-	repo := products.NewRepository(s.DB)
+	repo := catalog.NewRepository(s.DB)
 
 	total, err := repo.Total()
 

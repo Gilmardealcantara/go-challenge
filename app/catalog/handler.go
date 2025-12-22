@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/mytheresa/go-hiring-challenge/app/api"
-	"github.com/mytheresa/go-hiring-challenge/app/products"
 )
 
 type Response struct {
@@ -37,10 +36,10 @@ type CategoryResponse struct {
 }
 
 type Handler struct {
-	repo products.Repository
+	repo Repository
 }
 
-func NewHandler(r products.Repository) *Handler {
+func NewHandler(r Repository) *Handler {
 	return &Handler{
 		repo: r,
 	}
@@ -67,7 +66,7 @@ func (h *Handler) HandleGet(w http.ResponseWriter, r *http.Request) {
 	categoryCode := r.URL.Query().Get("category")
 	priceLessThan := api.QueryFloat(r, "priceLessThan")
 
-	params := products.FilterParams{
+	params := FilterParams{
 		Offset:        offset,
 		Limit:         limit,
 		CategoryCode:  categoryCode,

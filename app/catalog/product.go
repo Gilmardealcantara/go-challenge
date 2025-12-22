@@ -1,4 +1,4 @@
-package products
+package catalog
 
 import (
 	"github.com/mytheresa/go-hiring-challenge/app/categories"

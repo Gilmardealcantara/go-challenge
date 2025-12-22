@@ -8,7 +8,6 @@ import (
 	"github.com/mytheresa/go-hiring-challenge/app/api/server"
 	"github.com/mytheresa/go-hiring-challenge/app/catalog"
 	"github.com/mytheresa/go-hiring-challenge/app/categories"
-	"github.com/mytheresa/go-hiring-challenge/app/products"
 	"github.com/mytheresa/go-hiring-challenge/app/variants"
 	"github.com/mytheresa/go-hiring-challenge/tests/helpers"
 	"github.com/mytheresa/go-hiring-challenge/tests/mocks"
@@ -18,7 +17,7 @@ import (
 
 func TestHandlerHandleGet(t *testing.T) {
 	t.Run("returns catalog with products on success", func(t *testing.T) {
-		mockProducts := []products.Product{
+		mockProducts := []catalog.Product{
 			{
 				Code:  "PROD001",
 				Price: decimal.NewFromFloat(99.99),
@@ -38,7 +37,7 @@ func TestHandlerHandleGet(t *testing.T) {
 		}
 
 		mockRepo := new(mocks.ProductRepository)
-		mockRepo.On("GetWithFilters", products.FilterParams{Offset: 0, Limit: 10, CategoryCode: "", PriceLessThan: nil}).Return(mockProducts, nil)
+		mockRepo.On("GetWithFilters", catalog.FilterParams{Offset: 0, Limit: 10, CategoryCode: "", PriceLessThan: nil}).Return(mockProducts, nil)
 		mockRepo.On("Total").Return(int64(2), nil)
 
 		mux := server.SetupRoutes(catalog.NewHandler(mockRepo))
@@ -64,12 +63,12 @@ func TestHandlerHandleGet(t *testing.T) {
 	})
 
 	t.Run("returns products with null category when category is not set", func(t *testing.T) {
-		mockProducts := []products.Product{
+		mockProducts := []catalog.Product{
 			{Code: "PROD001", Price: decimal.NewFromFloat(99.99), Category: nil},
 		}
 
 		mockRepo := new(mocks.ProductRepository)
-		mockRepo.On("GetWithFilters", products.FilterParams{Offset: 0, Limit: 10, CategoryCode: "", PriceLessThan: nil}).Return(mockProducts, nil)
+		mockRepo.On("GetWithFilters", catalog.FilterParams{Offset: 0, Limit: 10, CategoryCode: "", PriceLessThan: nil}).Return(mockProducts, nil)
 		mockRepo.On("Total").Return(int64(1), nil)
 
 		mux := server.SetupRoutes(catalog.NewHandler(mockRepo))
@@ -87,7 +86,7 @@ func TestHandlerHandleGet(t *testing.T) {
 
 	t.Run("returns empty products list when no products exist", func(t *testing.T) {
 		mockRepo := new(mocks.ProductRepository)
-		mockRepo.On("GetWithFilters", products.FilterParams{Offset: 0, Limit: 10, CategoryCode: "", PriceLessThan: nil}).Return([]products.Product{}, nil)
+		mockRepo.On("GetWithFilters", catalog.FilterParams{Offset: 0, Limit: 10, CategoryCode: "", PriceLessThan: nil}).Return([]catalog.Product{}, nil)
 		mockRepo.On("Total").Return(int64(0), nil)
 
 		mux := server.SetupRoutes(catalog.NewHandler(mockRepo))
@@ -103,7 +102,7 @@ func TestHandlerHandleGet(t *testing.T) {
 
 	t.Run("returns error response when service fails", func(t *testing.T) {
 		mockRepo := new(mocks.ProductRepository)
-		mockRepo.On("GetWithFilters", products.FilterParams{Offset: 0, Limit: 10, CategoryCode: "", PriceLessThan: nil}).Return(nil, errors.New("database connection failed"))
+		mockRepo.On("GetWithFilters", catalog.FilterParams{Offset: 0, Limit: 10, CategoryCode: "", PriceLessThan: nil}).Return(nil, errors.New("database connection failed"))
 
 		mux := server.SetupRoutes(catalog.NewHandler(mockRepo))
 		recorder := helpers.MakeRequest(t, mux, "GET", "/catalog")
@@ -117,12 +116,12 @@ func TestHandlerHandleGet(t *testing.T) {
 	})
 
 	t.Run("applies custom offset and limit parameters", func(t *testing.T) {
-		mockProducts := []products.Product{
+		mockProducts := []catalog.Product{
 			{Code: "PROD003", Price: decimal.NewFromFloat(29.99)},
 		}
 
 		mockRepo := new(mocks.ProductRepository)
-		mockRepo.On("GetWithFilters", products.FilterParams{Offset: 2, Limit: 1, CategoryCode: "", PriceLessThan: nil}).Return(mockProducts, nil)
+		mockRepo.On("GetWithFilters", catalog.FilterParams{Offset: 2, Limit: 1, CategoryCode: "", PriceLessThan: nil}).Return(mockProducts, nil)
 		mockRepo.On("Total").Return(int64(8), nil)
 
 		mux := server.SetupRoutes(catalog.NewHandler(mockRepo))
@@ -148,10 +147,10 @@ func TestHandlerHandleGet(t *testing.T) {
 	})
 
 	t.Run("enforces minimum limit of 1", func(t *testing.T) {
-		mockProducts := []products.Product{}
+		mockProducts := []catalog.Product{}
 
 		mockRepo := new(mocks.ProductRepository)
-		mockRepo.On("GetWithFilters", products.FilterParams{Offset: 0, Limit: 0, CategoryCode: "", PriceLessThan: nil}).Return(mockProducts, nil)
+		mockRepo.On("GetWithFilters", catalog.FilterParams{Offset: 0, Limit: 0, CategoryCode: "", PriceLessThan: nil}).Return(mockProducts, nil)
 		mockRepo.On("Total").Return(int64(0), nil)
 
 		mux := server.SetupRoutes(catalog.NewHandler(mockRepo))
@@ -163,10 +162,10 @@ func TestHandlerHandleGet(t *testing.T) {
 	})
 
 	t.Run("defaults to offset 0 and limit 10 when parameters are missing", func(t *testing.T) {
-		mockProducts := []products.Product{}
+		mockProducts := []catalog.Product{}
 
 		mockRepo := new(mocks.ProductRepository)
-		mockRepo.On("GetWithFilters", products.FilterParams{Offset: 0, Limit: 10, CategoryCode: "", PriceLessThan: nil}).Return(mockProducts, nil)
+		mockRepo.On("GetWithFilters", catalog.FilterParams{Offset: 0, Limit: 10, CategoryCode: "", PriceLessThan: nil}).Return(mockProducts, nil)
 		mockRepo.On("Total").Return(int64(0), nil)
 
 		mux := server.SetupRoutes(catalog.NewHandler(mockRepo))
@@ -200,7 +199,7 @@ func TestHandlerHandleGet(t *testing.T) {
 	})
 
 	t.Run("filters products by category", func(t *testing.T) {
-		mockProducts := []products.Product{
+		mockProducts := []catalog.Product{
 			{
 				Code:  "PROD001",
 				Price: decimal.NewFromFloat(99.99),
@@ -212,7 +211,7 @@ func TestHandlerHandleGet(t *testing.T) {
 		}
 
 		mockRepo := new(mocks.ProductRepository)
-		mockRepo.On("GetWithFilters", products.FilterParams{Offset: 0, Limit: 10, CategoryCode: "clothing", PriceLessThan: nil}).Return(mockProducts, nil)
+		mockRepo.On("GetWithFilters", catalog.FilterParams{Offset: 0, Limit: 10, CategoryCode: "clothing", PriceLessThan: nil}).Return(mockProducts, nil)
 		mockRepo.On("Total").Return(int64(1), nil)
 
 		mux := server.SetupRoutes(catalog.NewHandler(mockRepo))
@@ -229,14 +228,14 @@ func TestHandlerHandleGet(t *testing.T) {
 	})
 
 	t.Run("filters products by price less than", func(t *testing.T) {
-		mockProducts := []products.Product{
+		mockProducts := []catalog.Product{
 			{Code: "PROD002", Price: decimal.NewFromFloat(49.50)},
 			{Code: "PROD003", Price: decimal.NewFromFloat(29.99)},
 		}
 
 		price := 50.0
 		mockRepo := new(mocks.ProductRepository)
-		mockRepo.On("GetWithFilters", products.FilterParams{Offset: 0, Limit: 10, CategoryCode: "", PriceLessThan: &price}).Return(mockProducts, nil)
+		mockRepo.On("GetWithFilters", catalog.FilterParams{Offset: 0, Limit: 10, CategoryCode: "", PriceLessThan: &price}).Return(mockProducts, nil)
 		mockRepo.On("Total").Return(int64(2), nil)
 
 		mux := server.SetupRoutes(catalog.NewHandler(mockRepo))
@@ -251,7 +250,7 @@ func TestHandlerHandleGet(t *testing.T) {
 	})
 
 	t.Run("filters products by category and price", func(t *testing.T) {
-		mockProducts := []products.Product{
+		mockProducts := []catalog.Product{
 			{
 				Code:  "PROD002",
 				Price: decimal.NewFromFloat(49.50),
@@ -264,7 +263,7 @@ func TestHandlerHandleGet(t *testing.T) {
 
 		price := 50.0
 		mockRepo := new(mocks.ProductRepository)
-		mockRepo.On("GetWithFilters", products.FilterParams{Offset: 0, Limit: 10, CategoryCode: "shoes", PriceLessThan: &price}).Return(mockProducts, nil)
+		mockRepo.On("GetWithFilters", catalog.FilterParams{Offset: 0, Limit: 10, CategoryCode: "shoes", PriceLessThan: &price}).Return(mockProducts, nil)
 		mockRepo.On("Total").Return(int64(1), nil)
 
 		mux := server.SetupRoutes(catalog.NewHandler(mockRepo))
@@ -283,7 +282,7 @@ func TestHandlerHandleGet(t *testing.T) {
 
 func TestHandlerHandleGetByCode(t *testing.T) {
 	t.Run("returns product details with variants on success", func(t *testing.T) {
-		mockProduct := &products.Product{
+		mockProduct := &catalog.Product{
 			Code:  "PROD001",
 			Price: decimal.NewFromFloat(99.99),
 			Category: &categories.Category{
@@ -330,7 +329,7 @@ func TestHandlerHandleGetByCode(t *testing.T) {
 	})
 
 	t.Run("inherits product price for variants without specific price", func(t *testing.T) {
-		mockProduct := &products.Product{
+		mockProduct := &catalog.Product{
 			Code:  "PROD002",
 			Price: decimal.NewFromFloat(49.99),
 			Category: &categories.Category{
@@ -367,7 +366,7 @@ func TestHandlerHandleGetByCode(t *testing.T) {
 	})
 
 	t.Run("returns product with no category when category is not set", func(t *testing.T) {
-		mockProduct := &products.Product{
+		mockProduct := &catalog.Product{
 			Code:     "PROD003",
 			Price:    decimal.NewFromFloat(29.99),
 			Category: nil,
@@ -396,7 +395,7 @@ func TestHandlerHandleGetByCode(t *testing.T) {
 	})
 
 	t.Run("returns product with no variants", func(t *testing.T) {
-		mockProduct := &products.Product{
+		mockProduct := &catalog.Product{
 			Code:  "PROD004",
 			Price: decimal.NewFromFloat(19.99),
 			Category: &categories.Category{
