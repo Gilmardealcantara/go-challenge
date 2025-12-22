@@ -71,7 +71,7 @@ func initializeContainer() (testcontainers.Container, *gorm.DB, error) {
 		WaitingFor: wait.ForAll(
 			wait.ForListeningPort("5432/tcp"),
 			wait.ForLog("database system is ready to accept connections"),
-		).WithStartupTimeout(90 * time.Second),
+		).WithStartupTimeoutDefault(90 * time.Second),
 	}
 
 	container, err := testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{

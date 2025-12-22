@@ -8,6 +8,7 @@ import (
 
 	"github.com/mytheresa/go-hiring-challenge/app/api"
 	"github.com/mytheresa/go-hiring-challenge/app/catalog"
+	"github.com/mytheresa/go-hiring-challenge/app/categories"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -38,6 +39,14 @@ func DecodeErrorResponse(t *testing.T, recorder *httptest.ResponseRecorder) api.
 // DecodeProductDetailsResponse decodes a product details response from the recorder and returns it
 func DecodeProductDetailsResponse(t *testing.T, recorder *httptest.ResponseRecorder) catalog.ProductDetailsResponse {
 	var response catalog.ProductDetailsResponse
+	err := json.NewDecoder(recorder.Body).Decode(&response)
+	assert.NoError(t, err)
+	return response
+}
+
+// DecodeCategoriesResponse decodes a categories response from the recorder and returns it
+func DecodeCategoriesResponse(t *testing.T, recorder *httptest.ResponseRecorder) []categories.CategoryResponse {
+	var response []categories.CategoryResponse
 	err := json.NewDecoder(recorder.Body).Decode(&response)
 	assert.NoError(t, err)
 	return response
