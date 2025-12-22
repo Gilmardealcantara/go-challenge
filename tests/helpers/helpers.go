@@ -34,3 +34,11 @@ func DecodeErrorResponse(t *testing.T, recorder *httptest.ResponseRecorder) api.
 	assert.NoError(t, err)
 	return errorResponse
 }
+
+// DecodeProductDetailsResponse decodes a product details response from the recorder and returns it
+func DecodeProductDetailsResponse(t *testing.T, recorder *httptest.ResponseRecorder) catalog.ProductDetailsResponse {
+	var response catalog.ProductDetailsResponse
+	err := json.NewDecoder(recorder.Body).Decode(&response)
+	assert.NoError(t, err)
+	return response
+}
