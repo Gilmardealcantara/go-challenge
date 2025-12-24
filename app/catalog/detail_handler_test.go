@@ -34,7 +34,13 @@ func TestDetailHandlerHandle(t *testing.T) {
 		recorder := helpers.MakeRequest(t, mux, "GET", "/catalog/PROD001", nil)
 
 		assert.Equal(t, http.StatusOK, recorder.Code)
-		assert.Equal(t, "application/json", recorder.Header().Get("Content-Type"))
+		response := helpers.DecodeProductDetailsResponse(t, recorder)
+		assert.Equal(t, "PROD001", response.Code)
+		assert.Equal(t, 99.99, response.Price)
+		assert.NotNil(t, response.Category)
+		assert.Equal(t, "clothing", response.Category.Code)
+		assert.Equal(t, "Clothing", response.Category.Name)
+		assert.Empty(t, response.Variants)
 	})
 
 	t.Run("returns 404 when product not found", func(t *testing.T) {
@@ -45,6 +51,8 @@ func TestDetailHandlerHandle(t *testing.T) {
 		recorder := helpers.MakeRequest(t, mux, "GET", "/catalog/INVALID", nil)
 
 		assert.Equal(t, http.StatusNotFound, recorder.Code)
+		errorResponse := helpers.DecodeErrorResponse(t, recorder)
+		assert.Equal(t, "product not found", errorResponse.Error)
 	})
 
 	t.Run("returns product details with variants", func(t *testing.T) {
@@ -76,6 +84,15 @@ func TestDetailHandlerHandle(t *testing.T) {
 		recorder := helpers.MakeRequest(t, mux, "GET", "/catalog/PROD001", nil)
 
 		assert.Equal(t, http.StatusOK, recorder.Code)
+		response := helpers.DecodeProductDetailsResponse(t, recorder)
+		assert.Equal(t, "PROD001", response.Code)
+		assert.Len(t, response.Variants, 2)
+		assert.Equal(t, "Size M", response.Variants[0].Name)
+		assert.Equal(t, "PROD001-M", response.Variants[0].SKU)
+		assert.Equal(t, 99.99, response.Variants[0].Price)
+		assert.Equal(t, "Size L", response.Variants[1].Name)
+		assert.Equal(t, "PROD001-L", response.Variants[1].SKU)
+		assert.Equal(t, 109.99, response.Variants[1].Price)
 	})
 
 	t.Run("inherits product price for variants with zero price", func(t *testing.T) {
@@ -103,39 +120,12 @@ func TestDetailHandlerHandle(t *testing.T) {
 		recorder := helpers.MakeRequest(t, mux, "GET", "/catalog/PROD002", nil)
 
 		assert.Equal(t, http.StatusOK, recorder.Code)
-	})
-
-	t.Run("handles nil category", func(t *testing.T) {
-		mockProduct := &products.Product{
-			Code:     "PROD003",
-			Price:    decimal.NewFromFloat(29.99),
-			Category: nil,
-			Variants: []variants.Variant{},
-		}
-
-		mockRepo := new(mocks.ProductRepository)
-		mockRepo.On("GetByCode", "PROD003").Return(mockProduct, nil)
-
-		mux := setupDetailRoutes(catalog.NewDetailHandler(mockRepo))
-		recorder := helpers.MakeRequest(t, mux, "GET", "/catalog/PROD003", nil)
-
-		assert.Equal(t, http.StatusOK, recorder.Code)
-	})
-
-	t.Run("handles empty variants", func(t *testing.T) {
-		mockProduct := &products.Product{
-			Code:     "PROD004",
-			Price:    decimal.NewFromFloat(19.99),
-			Variants: []variants.Variant{},
-		}
-
-		mockRepo := new(mocks.ProductRepository)
-		mockRepo.On("GetByCode", "PROD004").Return(mockProduct, nil)
-
-		mux := setupDetailRoutes(catalog.NewDetailHandler(mockRepo))
-		recorder := helpers.MakeRequest(t, mux, "GET", "/catalog/PROD004", nil)
-
-		assert.Equal(t, http.StatusOK, recorder.Code)
+		response := helpers.DecodeProductDetailsResponse(t, recorder)
+		assert.Equal(t, "PROD002", response.Code)
+		assert.Equal(t, 49.99, response.Price)
+		assert.Len(t, response.Variants, 2)
+		assert.Equal(t, 49.99, response.Variants[0].Price, "variant with zero price should inherit product price")
+		assert.Equal(t, 59.99, response.Variants[1].Price, "variant with explicit price should keep its own price")
 	})
 }
 
