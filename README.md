@@ -30,6 +30,9 @@ This repository contains a Go application for managing products and their prices
   - `make test`: Will run the tests.
   - `make run`: Will start the application.
   - `make docker-down`: Will stop the docker containers.
+  - `make test-i`: Run integration tests.
+  - `make test-i-rancher`: Run integration tests with Docker Rancher configuration.
+  - `make test-a`: Run all tests (unit + integration).
 
 Follow up for the assignemnt here: [ASSIGNMENT.md](ASSIGNMENT.md)
 
@@ -44,6 +47,3 @@ curl -X GET "http://localhost:8484/categories" | jq
 curl -X POST http://localhost:8484/categories  -H "Content-Type: application/json" -d '{"code":"electronics","name":"Electronics"}'
 
 ```
-
-TODO: 
-- use gomigrate

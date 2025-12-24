@@ -10,7 +10,11 @@ run ::
 test ::
 	@go test -v -count=1 -race ./... -coverprofile=coverage.out -covermode=atomic
 
-test_i ::
+test-i ::
+	go test -v -count=1 -tags=integration ./tests/integration
+
+# if you are using docker rancher 
+test-i-rancher ::
 	export CGO_CFLAGS="-Wno-gnu-folding-constant" \
 	export DOCKER_HOST=unix://$${HOME}/.rd/docker.sock && \
     export TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE=/var/run/docker.sock && \
@@ -18,7 +22,7 @@ test_i ::
     echo $${DOCKER_HOST} - $${TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE} - $${TESTCONTAINERS_HOST_OVERRIDE} && \
 	go test -v -count=1 -tags=integration ./tests/integration
 
-test_a :: test test_i
+test-a :: test test-i
 
 docker-up ::
 	docker compose up -d
