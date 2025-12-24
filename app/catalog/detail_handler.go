@@ -7,6 +7,7 @@ import (
 	"github.com/Gilmardealcantara/go-challenge/app/categories"
 	"github.com/Gilmardealcantara/go-challenge/app/products"
 	"github.com/Gilmardealcantara/go-challenge/app/variants"
+	"github.com/shopspring/decimal"
 )
 
 // ProductDetailsResponse is the DTO for product details
@@ -70,13 +71,10 @@ func (h *DetailHandler) Handle(w http.ResponseWriter, r *http.Request) {
 }
 
 // toVariantResponse converts a Variant to VariantResponse, inheriting product price if variant price is zero
-func (h *DetailHandler) toVariantResponse(v variants.Variant, productPrice any) VariantResponse {
+func (h *DetailHandler) toVariantResponse(v variants.Variant, productPrice decimal.Decimal) VariantResponse {
 	price := v.Price.String()
 	if v.Price.IsZero() {
-		// Inherit product price if variant price is null
-		if pd, ok := productPrice.(interface{ String() string }); ok {
-			price = pd.String()
-		}
+		price = productPrice.String()
 	}
 	return VariantResponse{
 		Name:  v.Name,
