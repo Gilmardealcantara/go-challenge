@@ -17,3 +17,11 @@ func (m *CategoriesService) GetCategories() ([]categories.CategoryResponse, erro
 	}
 	return args.Get(0).([]categories.CategoryResponse), args.Error(1)
 }
+
+func (m *CategoriesService) CreateCategory(req categories.CreateCategoryRequest) (*categories.CategoryResponse, error) {
+	args := m.Called(req)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*categories.CategoryResponse), args.Error(1)
+}

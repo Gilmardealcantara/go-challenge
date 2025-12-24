@@ -2,6 +2,7 @@ package categories
 
 type Service interface {
 	GetCategories() ([]CategoryResponse, error)
+	CreateCategory(req CreateCategoryRequest) (*CategoryResponse, error)
 }
 
 type service struct {
@@ -29,4 +30,20 @@ func (s *service) GetCategories() ([]CategoryResponse, error) {
 	}
 
 	return responses, nil
+}
+
+func (s *service) CreateCategory(req CreateCategoryRequest) (*CategoryResponse, error) {
+	category := &Category{
+		Code: req.Code,
+		Name: req.Name,
+	}
+
+	if err := s.repo.Create(category); err != nil {
+		return nil, err
+	}
+
+	return &CategoryResponse{
+		Code: category.Code,
+		Name: category.Name,
+	}, nil
 }

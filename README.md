@@ -40,4 +40,7 @@ curl -X GET "http://localhost:8484/catalog?limit=3" | jq
 curl -X GET "http://localhost:8484/catalog?limit=3&offset=2" | jq
 curl -X GET "http://localhost:8484/catalog?category=clothing" | jq
 curl -X GET "http://localhost:8484/catalog?priceLessThan=10.3" | jq
+curl -X GET "http://localhost:8484/categories" | jq
+curl -X POST http://localhost:8484/categories  -H "Content-Type: application/json" -d '{"code":"electronics","name":"Electronics"}'
+
 ```

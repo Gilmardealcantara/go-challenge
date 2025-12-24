@@ -1,6 +1,7 @@
 package helpers
 
 import (
+	"bytes"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -12,9 +13,10 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// MakeRequest makes an HTTP request and records the response
-func MakeRequest(t *testing.T, mux *http.ServeMux, method, url string) *httptest.ResponseRecorder {
-	req := httptest.NewRequest(method, url, nil)
+// MakeRequest makes an HTTP request with optional body and records the response
+func MakeRequest(t *testing.T, mux *http.ServeMux, method, url string, body []byte) *httptest.ResponseRecorder {
+	req := httptest.NewRequest(method, url, bytes.NewBuffer(body))
+	req.Header.Set("Content-Type", "application/json")
 	recorder := httptest.NewRecorder()
 	mux.ServeHTTP(recorder, req)
 	return recorder
@@ -47,6 +49,14 @@ func DecodeProductDetailsResponse(t *testing.T, recorder *httptest.ResponseRecor
 // DecodeCategoriesResponse decodes a categories response from the recorder and returns it
 func DecodeCategoriesResponse(t *testing.T, recorder *httptest.ResponseRecorder) []categories.CategoryResponse {
 	var response []categories.CategoryResponse
+	err := json.NewDecoder(recorder.Body).Decode(&response)
+	assert.NoError(t, err)
+	return response
+}
+
+// DecodeCategoryResponse decodes a category response from the recorder and returns it
+func DecodeCategoryResponse(t *testing.T, recorder *httptest.ResponseRecorder) categories.CategoryResponse {
+	var response categories.CategoryResponse
 	err := json.NewDecoder(recorder.Body).Decode(&response)
 	assert.NoError(t, err)
 	return response

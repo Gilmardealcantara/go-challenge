@@ -17,3 +17,8 @@ func (m *CategoriesRepository) GetAll() ([]categories.Category, error) {
 	}
 	return args.Get(0).([]categories.Category), args.Error(1)
 }
+
+func (m *CategoriesRepository) Create(category *categories.Category) error {
+	args := m.Called(category)
+	return args.Error(0)
+}

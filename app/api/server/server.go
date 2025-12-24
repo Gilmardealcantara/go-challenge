@@ -11,10 +11,11 @@ import (
 func Setup(db *gorm.DB) *http.ServeMux {
 	// Initialize handlers
 	prodRepo := catalog.NewRepository(db)
-	catHandler := catalog.NewHandler(catalog.NewService(prodRepo))
+	prodService := catalog.NewService(prodRepo)
+	catHandler := catalog.NewHandler(prodService)
 
 	catRepo := categories.NewRepository(db)
-	categoriesHandler := categories.NewHandler(categories.NewService(catRepo))
+	categoriesHandler := categories.NewHandler(catRepo)
 
 	return SetupRoutes(catHandler, categoriesHandler)
 }
@@ -24,5 +25,6 @@ func SetupRoutes(catHandler *catalog.Handler, categoriesHandler *categories.Hand
 	mux.HandleFunc("GET /catalog", catHandler.HandleGet)
 	mux.HandleFunc("GET /catalog/{code}", catHandler.HandleGetByCode)
 	mux.HandleFunc("GET /categories", categoriesHandler.HandleGet)
+	mux.HandleFunc("POST /categories", categoriesHandler.HandleCreate)
 	return mux
 }

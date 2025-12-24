@@ -7,6 +7,7 @@ import (
 	"github.com/mytheresa/go-hiring-challenge/app/categories"
 	"github.com/mytheresa/go-hiring-challenge/tests/mocks"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
 func TestServiceGetCategories(t *testing.T) {
@@ -52,5 +53,37 @@ func TestServiceGetCategories(t *testing.T) {
 
 		assert.Error(t, err)
 		assert.Equal(t, "database error", err.Error())
+	})
+}
+
+func TestServiceCreateCategory(t *testing.T) {
+	t.Run("creates category successfully", func(t *testing.T) {
+		mockRepo := new(mocks.CategoriesRepository)
+		mockRepo.On("Create", mock.MatchedBy(func(c *categories.Category) bool {
+			return c.Code == "electronics" && c.Name == "Electronics"
+		})).Return(nil)
+
+		service := categories.NewService(mockRepo)
+		req := categories.CreateCategoryRequest{Code: "electronics", Name: "Electronics"}
+		response, err := service.CreateCategory(req)
+
+		assert.NoError(t, err)
+		assert.NotNil(t, response)
+		assert.Equal(t, "electronics", response.Code)
+		assert.Equal(t, "Electronics", response.Name)
+	})
+
+	t.Run("returns error when repository fails", func(t *testing.T) {
+		mockRepo := new(mocks.CategoriesRepository)
+		mockRepo.On("Create", mock.MatchedBy(func(c *categories.Category) bool {
+			return c.Code == "electronics" && c.Name == "Electronics"
+		})).Return(errors.New("duplicate key"))
+
+		service := categories.NewService(mockRepo)
+		req := categories.CreateCategoryRequest{Code: "electronics", Name: "Electronics"}
+		_, err := service.CreateCategory(req)
+
+		assert.Error(t, err)
+		assert.Equal(t, "duplicate key", err.Error())
 	})
 }

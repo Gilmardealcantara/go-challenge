@@ -6,6 +6,7 @@ import (
 
 type Repository interface {
 	GetAll() ([]Category, error)
+	Create(category *Category) error
 }
 
 type repository struct {
@@ -24,4 +25,11 @@ func (r *repository) GetAll() ([]Category, error) {
 		return nil, err
 	}
 	return categories, nil
+}
+
+func (r *repository) Create(category *Category) error {
+	if err := r.db.Create(category).Error; err != nil {
+		return err
+	}
+	return nil
 }

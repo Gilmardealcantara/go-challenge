@@ -19,7 +19,7 @@ func TestCatalogSuite(t *testing.T) {
 }
 
 func (s *CatalogTestSuite) TestGetCatalog_ReturnsAllProductsWithPagination() {
-	recorder := helpers.MakeRequest(s.T(), s.mux, "GET", "/catalog")
+	recorder := helpers.MakeRequest(s.T(), s.mux, "GET", "/catalog", nil)
 	response := helpers.DecodeCatalogResponse(s.T(), recorder)
 
 	assert.Equal(s.T(), 200, recorder.Code)
@@ -28,7 +28,7 @@ func (s *CatalogTestSuite) TestGetCatalog_ReturnsAllProductsWithPagination() {
 }
 
 func (s *CatalogTestSuite) TestGetCatalog_ReturnsProductsWithCategoryInformation() {
-	recorder := helpers.MakeRequest(s.T(), s.mux, "GET", "/catalog")
+	recorder := helpers.MakeRequest(s.T(), s.mux, "GET", "/catalog", nil)
 	response := helpers.DecodeCatalogResponse(s.T(), recorder)
 
 	assert.Equal(s.T(), 200, recorder.Code)
@@ -41,7 +41,7 @@ func (s *CatalogTestSuite) TestGetCatalog_ReturnsProductsWithCategoryInformation
 }
 
 func (s *CatalogTestSuite) TestGetCatalog_RespectsOffsetAndLimitParameters() {
-	recorder := helpers.MakeRequest(s.T(), s.mux, "GET", "/catalog?offset=2&limit=2")
+	recorder := helpers.MakeRequest(s.T(), s.mux, "GET", "/catalog?offset=2&limit=2", nil)
 	response := helpers.DecodeCatalogResponse(s.T(), recorder)
 
 	assert.Equal(s.T(), 200, recorder.Code)
@@ -50,7 +50,7 @@ func (s *CatalogTestSuite) TestGetCatalog_RespectsOffsetAndLimitParameters() {
 }
 
 func (s *CatalogTestSuite) TestGetCatalog_FiltersProductsByCategory() {
-	recorder := helpers.MakeRequest(s.T(), s.mux, "GET", "/catalog?category=clothing")
+	recorder := helpers.MakeRequest(s.T(), s.mux, "GET", "/catalog?category=clothing", nil)
 	response := helpers.DecodeCatalogResponse(s.T(), recorder)
 
 	assert.Equal(s.T(), 200, recorder.Code)
@@ -62,7 +62,7 @@ func (s *CatalogTestSuite) TestGetCatalog_FiltersProductsByCategory() {
 }
 
 func (s *CatalogTestSuite) TestGetCatalog_FiltersProductsByPrice() {
-	recorder := helpers.MakeRequest(s.T(), s.mux, "GET", "/catalog?priceLessThan=10")
+	recorder := helpers.MakeRequest(s.T(), s.mux, "GET", "/catalog?priceLessThan=10", nil)
 	response := helpers.DecodeCatalogResponse(s.T(), recorder)
 
 	assert.Equal(s.T(), 200, recorder.Code)
@@ -73,7 +73,7 @@ func (s *CatalogTestSuite) TestGetCatalog_FiltersProductsByPrice() {
 }
 
 func (s *CatalogTestSuite) TestGetCatalog_FiltersProductsByCategoryAndPrice() {
-	recorder := helpers.MakeRequest(s.T(), s.mux, "GET", "/catalog?category=shoes&priceLessThan=10")
+	recorder := helpers.MakeRequest(s.T(), s.mux, "GET", "/catalog?category=shoes&priceLessThan=10", nil)
 	response := helpers.DecodeCatalogResponse(s.T(), recorder)
 
 	assert.Equal(s.T(), 200, recorder.Code)
@@ -86,7 +86,7 @@ func (s *CatalogTestSuite) TestGetCatalog_FiltersProductsByCategoryAndPrice() {
 }
 
 func (s *CatalogTestSuite) TestGetCatalog_ReturnsCorrectTotalCount() {
-	recorder := helpers.MakeRequest(s.T(), s.mux, "GET", "/catalog?limit=1")
+	recorder := helpers.MakeRequest(s.T(), s.mux, "GET", "/catalog?limit=1", nil)
 	response := helpers.DecodeCatalogResponse(s.T(), recorder)
 
 	totalCount := response.Total
@@ -94,7 +94,7 @@ func (s *CatalogTestSuite) TestGetCatalog_ReturnsCorrectTotalCount() {
 }
 
 func (s *CatalogTestSuite) TestGetProductByCode_ReturnsProductWithCategory() {
-	recorder := helpers.MakeRequest(s.T(), s.mux, "GET", "/catalog/PROD002")
+	recorder := helpers.MakeRequest(s.T(), s.mux, "GET", "/catalog/PROD002", nil)
 	response := helpers.DecodeProductDetailsResponse(s.T(), recorder)
 
 	assert.Equal(s.T(), 200, recorder.Code)
@@ -105,7 +105,7 @@ func (s *CatalogTestSuite) TestGetProductByCode_ReturnsProductWithCategory() {
 }
 
 func (s *CatalogTestSuite) TestGetProductByCode_VariantsInheritProductPrice() {
-	recorder := helpers.MakeRequest(s.T(), s.mux, "GET", "/catalog/PROD001")
+	recorder := helpers.MakeRequest(s.T(), s.mux, "GET", "/catalog/PROD001", nil)
 	response := helpers.DecodeProductDetailsResponse(s.T(), recorder)
 
 	assert.Equal(s.T(), 200, recorder.Code)
@@ -118,7 +118,7 @@ func (s *CatalogTestSuite) TestGetProductByCode_VariantsInheritProductPrice() {
 }
 
 func (s *CatalogTestSuite) TestGetProductByCode_ReturnsNotFoundForInvalidCode() {
-	recorder := helpers.MakeRequest(s.T(), s.mux, "GET", "/catalog/INVALID_CODE")
+	recorder := helpers.MakeRequest(s.T(), s.mux, "GET", "/catalog/INVALID_CODE", nil)
 	errorResponse := helpers.DecodeErrorResponse(s.T(), recorder)
 
 	assert.Equal(s.T(), 404, recorder.Code)
@@ -126,7 +126,7 @@ func (s *CatalogTestSuite) TestGetProductByCode_ReturnsNotFoundForInvalidCode() 
 }
 
 func (s *CatalogTestSuite) TestGetProductByCode_ReturnsAllProductVariants() {
-	recorder := helpers.MakeRequest(s.T(), s.mux, "GET", "/catalog/PROD001")
+	recorder := helpers.MakeRequest(s.T(), s.mux, "GET", "/catalog/PROD001", nil)
 	response := helpers.DecodeProductDetailsResponse(s.T(), recorder)
 
 	assert.Equal(s.T(), 200, recorder.Code)
