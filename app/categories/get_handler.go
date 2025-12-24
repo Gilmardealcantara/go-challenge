@@ -22,6 +22,15 @@ func NewGetHandler(r Repository) *GetHandler {
 	}
 }
 
+// Handle godoc
+//
+//	@Summary		List categories
+//	@Description	Get a list of all available product categories
+//	@Tags			categories
+//	@Produce		json
+//	@Success		200	{array}		CategoryResponse
+//	@Failure		500	{object}	api.ErrorDataResponse
+//	@Router			/categories [get]
 func (h *GetHandler) Handle(w http.ResponseWriter, r *http.Request) {
 	categories, err := h.repo.GetAll()
 	if err != nil {

@@ -3,6 +3,8 @@ package router
 import (
 	"net/http"
 
+	httpSwagger "github.com/swaggo/http-swagger"
+
 	"github.com/Gilmardealcantara/go-challenge/app/catalog"
 	"github.com/Gilmardealcantara/go-challenge/app/categories"
 	"github.com/Gilmardealcantara/go-challenge/app/products"
@@ -24,5 +26,10 @@ func Setup(db *gorm.DB) *http.ServeMux {
 	mux.HandleFunc("GET /catalog/{code}", detailHandler.Handle)
 	mux.HandleFunc("GET /categories", getHandler.Handle)
 	mux.HandleFunc("POST /categories", createHandler.Handle)
+
+	// Swagger documentation
+	mux.HandleFunc("GET /swagger/", httpSwagger.WrapHandler)
+	mux.HandleFunc("GET /swagger/*", httpSwagger.WrapHandler)
+
 	return mux
 }

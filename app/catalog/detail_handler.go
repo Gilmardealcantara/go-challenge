@@ -34,6 +34,16 @@ func NewDetailHandler(r products.Repository) *DetailHandler {
 	}
 }
 
+// Handle godoc
+//
+//	@Summary		Get product details
+//	@Description	Get detailed information about a specific product including all variants
+//	@Tags			catalog
+//	@Produce		json
+//	@Param			code	path		string	true	"Product code"
+//	@Success		200		{object}	ProductDetailsResponse
+//	@Failure		404		{object}	api.ErrorDataResponse
+//	@Router			/catalog/{code} [get]
 func (h *DetailHandler) Handle(w http.ResponseWriter, r *http.Request) {
 	code := r.PathValue("code")
 

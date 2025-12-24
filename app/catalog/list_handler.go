@@ -37,6 +37,20 @@ func NewListHandler(r products.Repository) *ListHandler {
 	}
 }
 
+// Handle godoc
+//
+//	@Summary		List products
+//	@Description	Get a paginated list of products with optional filtering by category and price
+//	@Tags			catalog
+//	@Produce		json
+//	@Param			offset			query		integer	false	"Pagination offset"	default(0)
+//	@Param			limit			query		integer	false	"Pagination limit"	default(10)
+//	@Param			category		query		string	false	"Filter by category code"
+//	@Param			priceLessThan	query		number	false	"Filter by price less than"
+//	@Success		200				{object}	Response
+//	@Failure		400				{object}	api.ErrorDataResponse
+//	@Failure		500				{object}	api.ErrorDataResponse
+//	@Router			/catalog [get]
 func (h *ListHandler) Handle(w http.ResponseWriter, r *http.Request) {
 	// Parse pagination parameters using helper
 	offset := api.QueryInt(r, "offset", 0)

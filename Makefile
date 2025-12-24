@@ -29,3 +29,6 @@ docker-up ::
 
 docker-down ::
 	docker compose down
+
+swagger ::
+	swag fmt && swag init -g cmd/server/main.go --output docs/swagger

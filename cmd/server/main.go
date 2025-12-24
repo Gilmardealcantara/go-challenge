@@ -1,3 +1,20 @@
+// Package main provides the entry point for the Go Challenge API.
+//
+//	@title			Go Challenge API
+//	@version		1.0
+//	@description	Product catalog management API with categories and variants
+//	@termsOfService	http://swagger.io/terms/
+//
+//	@contact.name	API Support
+//	@contact.url	http://www.swagger.io/support
+//	@contact.email	support@swagger.io
+//
+//	@license.name	Apache 2.0
+//	@license.url	http://www.apache.org/licenses/LICENSE-2.0.html
+//
+//	@host			localhost:8484
+//	@basePath		/
+//	@schemes		http
 package main
 
 import (
@@ -10,8 +27,10 @@ import (
 	"syscall"
 
 	"github.com/joho/godotenv"
+
 	"github.com/Gilmardealcantara/go-challenge/app/api/router"
 	"github.com/Gilmardealcantara/go-challenge/app/database"
+	_ "github.com/Gilmardealcantara/go-challenge/docs/swagger"
 )
 
 func main() {

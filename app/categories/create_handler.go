@@ -9,8 +9,8 @@ import (
 
 // CreateCategoryRequest is the DTO for creating a category
 type CreateCategoryRequest struct {
-	Code string `json:"code"`
-	Name string `json:"name"`
+	Code string `json:"code" example:"electronics"`
+	Name string `json:"name" example:"Electronics"`
 }
 
 type CreateHandler struct {
@@ -23,6 +23,18 @@ func NewCreateHandler(r Repository) *CreateHandler {
 	}
 }
 
+// Handle godoc
+//
+//	@Summary		Create category
+//	@Description	Create a new product category
+//	@Tags			categories
+//	@Accept			json
+//	@Produce		json
+//	@Param			request	body		CreateCategoryRequest	true	"Category data"
+//	@Success		201		{object}	CategoryResponse
+//	@Failure		400		{object}	api.ErrorDataResponse
+//	@Failure		500		{object}	api.ErrorDataResponse
+//	@Router			/categories [post]
 func (h *CreateHandler) Handle(w http.ResponseWriter, r *http.Request) {
 	var req CreateCategoryRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {

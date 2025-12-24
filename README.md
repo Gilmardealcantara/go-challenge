@@ -33,10 +33,12 @@ This repository contains a Go application for managing products and their prices
   - `make test-i`: Run integration tests.
   - `make test-i-rancher`: Run integration tests with Docker Rancher configuration.
   - `make test-a`: Run all tests (unit + integration).
+  - `make swagger`: To generate and update api documentation
 
 Follow up for the assignemnt here: [ASSIGNMENT.md](ASSIGNMENT.md)
 
-## Tests
+## Endpoints
+doc: http://localhost:8484/swagger/
 ```sh
 curl -X GET "http://localhost:8484/catalog" | jq
 curl -X GET "http://localhost:8484/catalog?limit=3" | jq
@@ -45,5 +47,4 @@ curl -X GET "http://localhost:8484/catalog?category=clothing" | jq
 curl -X GET "http://localhost:8484/catalog?priceLessThan=10.3" | jq
 curl -X GET "http://localhost:8484/categories" | jq
 curl -X POST http://localhost:8484/categories  -H "Content-Type: application/json" -d '{"code":"electronics","name":"Electronics"}'
-
 ```

@@ -10,8 +10,8 @@ import (
 	"os/exec"
 	"time"
 
-	_ "github.com/lib/pq"
 	"github.com/Gilmardealcantara/go-challenge/app/api/router"
+	_ "github.com/lib/pq"
 	"github.com/stretchr/testify/suite"
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/wait"
