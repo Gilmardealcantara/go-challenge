@@ -5,7 +5,7 @@ package integration
 import (
 	"testing"
 
-	"github.com/mytheresa/go-hiring-challenge/tests/helpers"
+	"github.com/Gilmardealcantara/go-challenge/tests/helpers"
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/suite"
 )

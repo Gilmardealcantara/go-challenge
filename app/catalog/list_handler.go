@@ -3,9 +3,9 @@ package catalog
 import (
 	"net/http"
 
-	"github.com/mytheresa/go-hiring-challenge/app/api"
-	"github.com/mytheresa/go-hiring-challenge/app/categories"
-	"github.com/mytheresa/go-hiring-challenge/app/products"
+	"github.com/Gilmardealcantara/go-challenge/app/api"
+	"github.com/Gilmardealcantara/go-challenge/app/categories"
+	"github.com/Gilmardealcantara/go-challenge/app/products"
 )
 
 // Response is the DTO for listing products

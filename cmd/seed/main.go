@@ -9,7 +9,7 @@ import (
 
 	"github.com/joho/godotenv"
 
-	"github.com/mytheresa/go-hiring-challenge/app/database"
+	"github.com/Gilmardealcantara/go-challenge/app/database"
 )
 
 func main() {

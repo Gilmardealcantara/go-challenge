@@ -47,4 +47,3 @@ curl -X POST http://localhost:8484/categories  -H "Content-Type: application/jso
 
 TODO: 
 - use gomigrate
-- response price as string

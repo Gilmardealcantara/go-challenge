@@ -1,8 +1,8 @@
 package products
 
 import (
-	"github.com/mytheresa/go-hiring-challenge/app/categories"
-	"github.com/mytheresa/go-hiring-challenge/app/variants"
+	"github.com/Gilmardealcantara/go-challenge/app/categories"
+	"github.com/Gilmardealcantara/go-challenge/app/variants"
 	"github.com/shopspring/decimal"
 )
 

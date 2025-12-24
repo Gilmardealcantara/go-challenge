@@ -1,7 +1,7 @@
 package mocks
 
 import (
-	"github.com/mytheresa/go-hiring-challenge/app/categories"
+	"github.com/Gilmardealcantara/go-challenge/app/categories"
 	"github.com/stretchr/testify/mock"
 )
 

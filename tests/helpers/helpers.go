@@ -7,9 +7,9 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/mytheresa/go-hiring-challenge/app/api"
-	"github.com/mytheresa/go-hiring-challenge/app/catalog"
-	"github.com/mytheresa/go-hiring-challenge/app/categories"
+	"github.com/Gilmardealcantara/go-challenge/app/api"
+	"github.com/Gilmardealcantara/go-challenge/app/catalog"
+	"github.com/Gilmardealcantara/go-challenge/app/categories"
 	"github.com/stretchr/testify/assert"
 )
 

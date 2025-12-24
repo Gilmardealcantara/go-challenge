@@ -6,9 +6,9 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/mytheresa/go-hiring-challenge/app/categories"
-	"github.com/mytheresa/go-hiring-challenge/tests/helpers"
-	"github.com/mytheresa/go-hiring-challenge/tests/mocks"
+	"github.com/Gilmardealcantara/go-challenge/app/categories"
+	"github.com/Gilmardealcantara/go-challenge/tests/helpers"
+	"github.com/Gilmardealcantara/go-challenge/tests/mocks"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )

@@ -3,7 +3,7 @@ package categories
 import (
 	"net/http"
 
-	"github.com/mytheresa/go-hiring-challenge/app/api"
+	"github.com/Gilmardealcantara/go-challenge/app/api"
 )
 
 // CategoryResponse is the DTO for a category

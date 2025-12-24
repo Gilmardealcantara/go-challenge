@@ -5,12 +5,12 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/mytheresa/go-hiring-challenge/app/catalog"
-	"github.com/mytheresa/go-hiring-challenge/app/categories"
-	"github.com/mytheresa/go-hiring-challenge/app/products"
-	"github.com/mytheresa/go-hiring-challenge/app/variants"
-	"github.com/mytheresa/go-hiring-challenge/tests/helpers"
-	"github.com/mytheresa/go-hiring-challenge/tests/mocks"
+	"github.com/Gilmardealcantara/go-challenge/app/catalog"
+	"github.com/Gilmardealcantara/go-challenge/app/categories"
+	"github.com/Gilmardealcantara/go-challenge/app/products"
+	"github.com/Gilmardealcantara/go-challenge/app/variants"
+	"github.com/Gilmardealcantara/go-challenge/tests/helpers"
+	"github.com/Gilmardealcantara/go-challenge/tests/mocks"
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"
 )

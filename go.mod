@@ -1,4 +1,4 @@
-module github.com/mytheresa/go-hiring-challenge
+module github.com/Gilmardealcantara/go-challenge
 
 go 1.24.3
 

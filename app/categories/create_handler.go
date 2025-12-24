@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/mytheresa/go-hiring-challenge/app/api"
+	"github.com/Gilmardealcantara/go-challenge/app/api"
 )
 
 // CreateCategoryRequest is the DTO for creating a category

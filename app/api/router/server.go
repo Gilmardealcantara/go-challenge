@@ -3,9 +3,9 @@ package router
 import (
 	"net/http"
 
-	"github.com/mytheresa/go-hiring-challenge/app/catalog"
-	"github.com/mytheresa/go-hiring-challenge/app/categories"
-	"github.com/mytheresa/go-hiring-challenge/app/products"
+	"github.com/Gilmardealcantara/go-challenge/app/catalog"
+	"github.com/Gilmardealcantara/go-challenge/app/categories"
+	"github.com/Gilmardealcantara/go-challenge/app/products"
 	"gorm.io/gorm"
 )
 

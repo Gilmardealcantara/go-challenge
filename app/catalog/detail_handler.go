@@ -3,10 +3,10 @@ package catalog
 import (
 	"net/http"
 
-	"github.com/mytheresa/go-hiring-challenge/app/api"
-	"github.com/mytheresa/go-hiring-challenge/app/categories"
-	"github.com/mytheresa/go-hiring-challenge/app/products"
-	"github.com/mytheresa/go-hiring-challenge/app/variants"
+	"github.com/Gilmardealcantara/go-challenge/app/api"
+	"github.com/Gilmardealcantara/go-challenge/app/categories"
+	"github.com/Gilmardealcantara/go-challenge/app/products"
+	"github.com/Gilmardealcantara/go-challenge/app/variants"
 )
 
 // ProductDetailsResponse is the DTO for product details

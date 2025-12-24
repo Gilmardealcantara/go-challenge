@@ -11,7 +11,7 @@ import (
 	"time"
 
 	_ "github.com/lib/pq"
-	"github.com/mytheresa/go-hiring-challenge/app/api/router"
+	"github.com/Gilmardealcantara/go-challenge/app/api/router"
 	"github.com/stretchr/testify/suite"
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/wait"
