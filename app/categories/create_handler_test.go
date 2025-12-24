@@ -26,10 +26,7 @@ func TestCreateHandlerHandle(t *testing.T) {
 		recorder := helpers.MakeRequest(t, setupCreateRoutes(handler), "POST", "/categories", body)
 
 		assert.Equal(t, http.StatusCreated, recorder.Code)
-		assert.Equal(t, "application/json", recorder.Header().Get("Content-Type"))
-
-		var response categories.CategoryResponse
-		json.NewDecoder(recorder.Body).Decode(&response)
+		response := helpers.DecodeCategoryResponse(t, recorder)
 		assert.Equal(t, "electronics", response.Code)
 		assert.Equal(t, "Electronics", response.Name)
 	})
@@ -43,6 +40,8 @@ func TestCreateHandlerHandle(t *testing.T) {
 		recorder := helpers.MakeRequest(t, setupCreateRoutes(handler), "POST", "/categories", body)
 
 		assert.Equal(t, http.StatusBadRequest, recorder.Code)
+		errorResponse := helpers.DecodeErrorResponse(t, recorder)
+		assert.Equal(t, "code and name are required", errorResponse.Error)
 	})
 
 	t.Run("returns 400 when name is missing", func(t *testing.T) {
@@ -54,6 +53,8 @@ func TestCreateHandlerHandle(t *testing.T) {
 		recorder := helpers.MakeRequest(t, setupCreateRoutes(handler), "POST", "/categories", body)
 
 		assert.Equal(t, http.StatusBadRequest, recorder.Code)
+		errorResponse := helpers.DecodeErrorResponse(t, recorder)
+		assert.Equal(t, "code and name are required", errorResponse.Error)
 	})
 
 	t.Run("returns 400 when request body is invalid", func(t *testing.T) {
@@ -63,6 +64,8 @@ func TestCreateHandlerHandle(t *testing.T) {
 		recorder := helpers.MakeRequest(t, setupCreateRoutes(handler), "POST", "/categories", []byte("invalid json"))
 
 		assert.Equal(t, http.StatusBadRequest, recorder.Code)
+		errorResponse := helpers.DecodeErrorResponse(t, recorder)
+		assert.Equal(t, "invalid request body", errorResponse.Error)
 	})
 
 	t.Run("returns 500 when repository returns error", func(t *testing.T) {
@@ -77,6 +80,8 @@ func TestCreateHandlerHandle(t *testing.T) {
 		recorder := helpers.MakeRequest(t, setupCreateRoutes(handler), "POST", "/categories", body)
 
 		assert.Equal(t, http.StatusInternalServerError, recorder.Code)
+		errorResponse := helpers.DecodeErrorResponse(t, recorder)
+		assert.Equal(t, "database error", errorResponse.Error)
 	})
 }
 

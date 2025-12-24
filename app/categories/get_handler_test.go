@@ -23,7 +23,12 @@ func TestGetHandlerHandle(t *testing.T) {
 		recorder := helpers.MakeRequest(t, setupGetRoutes(handler), "GET", "/categories", nil)
 
 		assert.Equal(t, http.StatusOK, recorder.Code)
-		assert.Equal(t, "application/json", recorder.Header().Get("Content-Type"))
+		response := helpers.DecodeCategoriesResponse(t, recorder)
+		assert.Len(t, response, 2)
+		assert.Equal(t, "clothing", response[0].Code)
+		assert.Equal(t, "Clothing", response[0].Name)
+		assert.Equal(t, "shoes", response[1].Code)
+		assert.Equal(t, "Shoes", response[1].Name)
 	})
 
 	t.Run("returns 200 with empty list when no categories", func(t *testing.T) {
@@ -34,6 +39,8 @@ func TestGetHandlerHandle(t *testing.T) {
 		recorder := helpers.MakeRequest(t, setupGetRoutes(handler), "GET", "/categories", nil)
 
 		assert.Equal(t, http.StatusOK, recorder.Code)
+		response := helpers.DecodeCategoriesResponse(t, recorder)
+		assert.Empty(t, response)
 	})
 
 	t.Run("returns 500 when repository returns error", func(t *testing.T) {
@@ -44,6 +51,8 @@ func TestGetHandlerHandle(t *testing.T) {
 		recorder := helpers.MakeRequest(t, setupGetRoutes(handler), "GET", "/categories", nil)
 
 		assert.Equal(t, http.StatusInternalServerError, recorder.Code)
+		errorResponse := helpers.DecodeErrorResponse(t, recorder)
+		assert.Equal(t, "database error", errorResponse.Error)
 	})
 }
 
