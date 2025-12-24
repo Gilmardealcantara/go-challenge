@@ -108,13 +108,6 @@ func initializeContainer() (testcontainers.Container, *gorm.DB, error) {
 		container.Terminate(ctx)
 		return nil, nil, lastErr
 	}
-
-	// Run seed command to initialize database
-	if err := runSeed(port.Port()); err != nil {
-		container.Terminate(ctx)
-		return nil, nil, err
-	}
-
 	return container, database, nil
 }
 
