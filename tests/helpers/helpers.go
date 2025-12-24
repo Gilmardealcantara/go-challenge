@@ -22,42 +22,31 @@ func MakeRequest(t *testing.T, mux *http.ServeMux, method, url string, body []by
 	return recorder
 }
 
-// DecodeCatalogResponse decodes a catalog response from the recorder and returns it
+// DecodeResponse decodes a JSON response from the recorder and returns it
+func DecodeResponse[T any](t *testing.T, recorder *httptest.ResponseRecorder) T {
+	var response T
+	err := json.NewDecoder(recorder.Body).Decode(&response)
+	assert.NoError(t, err)
+	return response
+}
+
+// Convenience functions for backward compatibility
 func DecodeCatalogResponse(t *testing.T, recorder *httptest.ResponseRecorder) catalog.Response {
-	var response catalog.Response
-	err := json.NewDecoder(recorder.Body).Decode(&response)
-	assert.NoError(t, err)
-	return response
+	return DecodeResponse[catalog.Response](t, recorder)
 }
 
-// DecodeErrorResponse decodes a JSON error response
 func DecodeErrorResponse(t *testing.T, recorder *httptest.ResponseRecorder) api.ErrorDataResponse {
-	var errorResponse api.ErrorDataResponse
-	err := json.NewDecoder(recorder.Body).Decode(&errorResponse)
-	assert.NoError(t, err)
-	return errorResponse
+	return DecodeResponse[api.ErrorDataResponse](t, recorder)
 }
 
-// DecodeProductDetailsResponse decodes a product details response from the recorder and returns it
 func DecodeProductDetailsResponse(t *testing.T, recorder *httptest.ResponseRecorder) catalog.ProductDetailsResponse {
-	var response catalog.ProductDetailsResponse
-	err := json.NewDecoder(recorder.Body).Decode(&response)
-	assert.NoError(t, err)
-	return response
+	return DecodeResponse[catalog.ProductDetailsResponse](t, recorder)
 }
 
-// DecodeCategoriesResponse decodes a categories response from the recorder and returns it
 func DecodeCategoriesResponse(t *testing.T, recorder *httptest.ResponseRecorder) []categories.CategoryResponse {
-	var response []categories.CategoryResponse
-	err := json.NewDecoder(recorder.Body).Decode(&response)
-	assert.NoError(t, err)
-	return response
+	return DecodeResponse[[]categories.CategoryResponse](t, recorder)
 }
 
-// DecodeCategoryResponse decodes a category response from the recorder and returns it
 func DecodeCategoryResponse(t *testing.T, recorder *httptest.ResponseRecorder) categories.CategoryResponse {
-	var response categories.CategoryResponse
-	err := json.NewDecoder(recorder.Body).Decode(&response)
-	assert.NoError(t, err)
-	return response
+	return DecodeResponse[categories.CategoryResponse](t, recorder)
 }
