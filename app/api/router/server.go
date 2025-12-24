@@ -1,4 +1,4 @@
-package server
+package router
 
 import (
 	"net/http"
@@ -19,10 +19,6 @@ func Setup(db *gorm.DB) *http.ServeMux {
 	getHandler := categories.NewGetHandler(catRepo)
 	createHandler := categories.NewCreateHandler(catRepo)
 
-	return SetupRoutes(listHandler, detailHandler, getHandler, createHandler)
-}
-
-func SetupRoutes(listHandler *catalog.ListHandler, detailHandler *catalog.DetailHandler, getHandler *categories.GetHandler, createHandler *categories.CreateHandler) *http.ServeMux {
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /catalog", listHandler.Handle)
 	mux.HandleFunc("GET /catalog/{code}", detailHandler.Handle)

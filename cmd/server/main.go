@@ -10,7 +10,7 @@ import (
 	"syscall"
 
 	"github.com/joho/godotenv"
-	"github.com/mytheresa/go-hiring-challenge/app/api/server"
+	"github.com/mytheresa/go-hiring-challenge/app/api/router"
 	"github.com/mytheresa/go-hiring-challenge/app/database"
 )
 
@@ -34,7 +34,7 @@ func main() {
 	defer close()
 
 	// Set up routing
-	mux := server.Setup(db)
+	mux := router.Setup(db)
 
 	// Set up the HTTP server
 	srv := &http.Server{
