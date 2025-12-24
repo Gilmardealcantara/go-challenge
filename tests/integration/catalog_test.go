@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/mytheresa/go-hiring-challenge/tests/helpers"
-	"github.com/stretchr/testify/assert"
+	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -63,7 +63,8 @@ func (s *CatalogTestSuite) TestGetCatalog_FiltersProductsByPrice() {
 	s.Equal(200, recorder.Code)
 	s.Len(response.Products, 3)
 	for _, p := range response.Products {
-		s.Less(p.Price, 10.0)
+		price, _ := decimal.NewFromString(p.Price)
+		s.True(price.LessThan(decimal.NewFromInt(10)))
 	}
 }
 
@@ -71,12 +72,13 @@ func (s *CatalogTestSuite) TestGetCatalog_FiltersProductsByCategoryAndPrice() {
 	recorder := helpers.MakeRequest(s.T(), s.mux, "GET", "/catalog?category=shoes&priceLessThan=10", nil)
 	response := helpers.DecodeCatalogResponse(s.T(), recorder)
 
-	assert.Equal(s.T(), 200, recorder.Code)
-	assert.Len(s.T(), response.Products, 1)
+	s.Equal(200, recorder.Code)
+	s.Len(response.Products, 1)
 	for _, p := range response.Products {
-		assert.Less(s.T(), p.Price, 10.0)
-		assert.NotNil(s.T(), p.Category)
-		assert.Equal(s.T(), "shoes", p.Category.Code)
+		price, _ := decimal.NewFromString(p.Price)
+		s.True(price.LessThan(decimal.NewFromInt(10)))
+		s.NotNil(p.Category)
+		s.Equal("shoes", p.Category.Code)
 	}
 }
 
@@ -85,5 +87,5 @@ func (s *CatalogTestSuite) TestGetCatalog_ReturnsCorrectTotalCount() {
 	response := helpers.DecodeCatalogResponse(s.T(), recorder)
 
 	totalCount := response.Total
-	assert.Equal(s.T(), totalCount, int64(8))
+	s.Equal(totalCount, int64(8))
 }
