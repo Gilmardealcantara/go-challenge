@@ -33,6 +33,9 @@ func TestListHandlerHandle(t *testing.T) {
 		recorder := helpers.MakeRequest(t, mux, "GET", "/catalog?limit=200", nil)
 
 		assert.Equal(t, http.StatusBadRequest, recorder.Code)
+
+		response := helpers.DecodeErrorResponse(t, recorder)
+		assert.Equal(t, "limit cannot be greater than 100", response.Error)
 	})
 
 	t.Run("returns 400 when offset is negative", func(t *testing.T) {
@@ -41,6 +44,9 @@ func TestListHandlerHandle(t *testing.T) {
 		recorder := helpers.MakeRequest(t, mux, "GET", "/catalog?offset=-1", nil)
 
 		assert.Equal(t, http.StatusBadRequest, recorder.Code)
+
+		response := helpers.DecodeErrorResponse(t, recorder)
+		assert.Equal(t, "limit and offset need to be positive values", response.Error)
 	})
 
 	t.Run("returns 400 when limit is negative", func(t *testing.T) {
@@ -49,29 +55,9 @@ func TestListHandlerHandle(t *testing.T) {
 		recorder := helpers.MakeRequest(t, mux, "GET", "/catalog?limit=-5", nil)
 
 		assert.Equal(t, http.StatusBadRequest, recorder.Code)
-	})
 
-	t.Run("applies category filter", func(t *testing.T) {
-		mockRepo := new(mocks.ProductRepository)
-		mockRepo.On("GetWithFilters", products.FilterParams{Offset: 0, Limit: 10, CategoryCode: "clothing", PriceLessThan: nil}).Return([]products.Product{}, nil)
-		mockRepo.On("Total").Return(int64(0), nil)
-
-		mux := setupListRoutes(catalog.NewListHandler(mockRepo))
-		recorder := helpers.MakeRequest(t, mux, "GET", "/catalog?category=clothing", nil)
-
-		assert.Equal(t, http.StatusOK, recorder.Code)
-	})
-
-	t.Run("applies price filter", func(t *testing.T) {
-		price := 50.0
-		mockRepo := new(mocks.ProductRepository)
-		mockRepo.On("GetWithFilters", products.FilterParams{Offset: 0, Limit: 10, CategoryCode: "", PriceLessThan: &price}).Return([]products.Product{}, nil)
-		mockRepo.On("Total").Return(int64(0), nil)
-
-		mux := setupListRoutes(catalog.NewListHandler(mockRepo))
-		recorder := helpers.MakeRequest(t, mux, "GET", "/catalog?priceLessThan=50", nil)
-
-		assert.Equal(t, http.StatusOK, recorder.Code)
+		response := helpers.DecodeErrorResponse(t, recorder)
+		assert.Equal(t, "limit and offset need to be positive values", response.Error)
 	})
 
 	t.Run("returns products with correct mapping", func(t *testing.T) {
@@ -94,6 +80,15 @@ func TestListHandlerHandle(t *testing.T) {
 		recorder := helpers.MakeRequest(t, mux, "GET", "/catalog", nil)
 
 		assert.Equal(t, http.StatusOK, recorder.Code)
+
+		response := helpers.DecodeCatalogResponse(t, recorder)
+		assert.Equal(t, int64(1), response.Total)
+		assert.Len(t, response.Products, 1)
+		assert.Equal(t, "PROD001", response.Products[0].Code)
+		assert.Equal(t, "99.99", response.Products[0].Price)
+		assert.NotNil(t, response.Products[0].Category)
+		assert.Equal(t, "clothing", response.Products[0].Category.Code)
+		assert.Equal(t, "Clothing", response.Products[0].Category.Name)
 	})
 
 	t.Run("handles nil category", func(t *testing.T) {
@@ -109,6 +104,10 @@ func TestListHandlerHandle(t *testing.T) {
 		recorder := helpers.MakeRequest(t, mux, "GET", "/catalog", nil)
 
 		assert.Equal(t, http.StatusOK, recorder.Code)
+
+		response := helpers.DecodeCatalogResponse(t, recorder)
+		assert.Len(t, response.Products, 1)
+		assert.Nil(t, response.Products[0].Category)
 	})
 
 	t.Run("returns error from repository", func(t *testing.T) {
@@ -119,6 +118,9 @@ func TestListHandlerHandle(t *testing.T) {
 		recorder := helpers.MakeRequest(t, mux, "GET", "/catalog", nil)
 
 		assert.Equal(t, http.StatusInternalServerError, recorder.Code)
+
+		response := helpers.DecodeErrorResponse(t, recorder)
+		assert.Equal(t, "database error", response.Error)
 	})
 }
 

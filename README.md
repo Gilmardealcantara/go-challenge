@@ -44,3 +44,7 @@ curl -X GET "http://localhost:8484/categories" | jq
 curl -X POST http://localhost:8484/categories  -H "Content-Type: application/json" -d '{"code":"electronics","name":"Electronics"}'
 
 ```
+
+TODO: 
+- use gomigrate
+- response price as string
