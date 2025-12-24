@@ -24,6 +24,7 @@ This repository contains a Go application for managing products and their prices
 - Ensure you have Go installed on your machine.
 - Ensure you have Docker installed on your machine.
 - Important makefile targets:
+  - `make install`: install goland and swag with [asdf](https://asdf-vm.com/guide/getting-started.html).
   - `make tidy`: will install all dependencies.
   - `make docker-up`: will start the required infrastructure services via docker containers.
   - `make seed`: ⚠️ Will destroy and re-create the database tables.

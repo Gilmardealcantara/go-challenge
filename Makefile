@@ -1,3 +1,8 @@
+install ::
+	asdf plugin add swag https://github.com/behoof4mind/asdf-swag.git
+	asdf plugin add golang 
+	asdf install
+
 tidy ::
 	@go mod tidy && go mod vendor
 
