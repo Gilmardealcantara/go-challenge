@@ -7,33 +7,23 @@ import (
 	"github.com/mytheresa/go-hiring-challenge/app/api"
 )
 
-type Handler struct {
-	service Service
+// CreateCategoryRequest is the DTO for creating a category
+type CreateCategoryRequest struct {
+	Code string `json:"code"`
+	Name string `json:"name"`
 }
 
-func NewHandler(r Repository) *Handler {
-	return &Handler{
-		service: NewService(r),
+type CreateHandler struct {
+	repo Repository
+}
+
+func NewCreateHandler(r Repository) *CreateHandler {
+	return &CreateHandler{
+		repo: r,
 	}
 }
 
-func NewHandlerWithService(s Service) *Handler {
-	return &Handler{
-		service: s,
-	}
-}
-
-func (h *Handler) HandleGet(w http.ResponseWriter, r *http.Request) {
-	categories, err := h.service.GetCategories()
-	if err != nil {
-		api.ErrorResponse(w, http.StatusInternalServerError, err.Error())
-		return
-	}
-
-	api.OKResponse(w, categories)
-}
-
-func (h *Handler) HandleCreate(w http.ResponseWriter, r *http.Request) {
+func (h *CreateHandler) Handle(w http.ResponseWriter, r *http.Request) {
 	var req CreateCategoryRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		api.ErrorResponse(w, http.StatusBadRequest, "invalid request body")
@@ -45,10 +35,19 @@ func (h *Handler) HandleCreate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response, err := h.service.CreateCategory(req)
-	if err != nil {
+	category := &Category{
+		Code: req.Code,
+		Name: req.Name,
+	}
+
+	if err := h.repo.Create(category); err != nil {
 		api.ErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
+	}
+
+	response := &CategoryResponse{
+		Code: category.Code,
+		Name: category.Name,
 	}
 
 	w.Header().Set("Content-Type", "application/json")
