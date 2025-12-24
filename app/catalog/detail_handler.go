@@ -12,16 +12,16 @@ import (
 // ProductDetailsResponse is the DTO for product details
 type ProductDetailsResponse struct {
 	Code     string            `json:"code"`
-	Price    float64           `json:"price"`
+	Price    string            `json:"price"`
 	Category *CategoryResponse `json:"category,omitempty"`
 	Variants []VariantResponse `json:"variants"`
 }
 
 // VariantResponse is the DTO for a product variant
 type VariantResponse struct {
-	Name  string  `json:"name"`
-	SKU   string  `json:"sku"`
-	Price float64 `json:"price"`
+	Name  string `json:"name"`
+	SKU   string `json:"sku"`
+	Price string `json:"price"`
 }
 
 type DetailHandler struct {
@@ -51,7 +51,7 @@ func (h *DetailHandler) Handle(w http.ResponseWriter, r *http.Request) {
 
 	response := &ProductDetailsResponse{
 		Code:     product.Code,
-		Price:    product.Price.InexactFloat64(),
+		Price:    product.Price.String(),
 		Category: h.toCategoryResponse(product.Category),
 		Variants: variantResponses,
 	}
@@ -61,11 +61,11 @@ func (h *DetailHandler) Handle(w http.ResponseWriter, r *http.Request) {
 
 // toVariantResponse converts a Variant to VariantResponse, inheriting product price if variant price is zero
 func (h *DetailHandler) toVariantResponse(v variants.Variant, productPrice any) VariantResponse {
-	price := v.Price.InexactFloat64()
+	price := v.Price.String()
 	if v.Price.IsZero() {
 		// Inherit product price if variant price is null
-		if pd, ok := productPrice.(interface{ InexactFloat64() float64 }); ok {
-			price = pd.InexactFloat64()
+		if pd, ok := productPrice.(interface{ String() string }); ok {
+			price = pd.String()
 		}
 	}
 	return VariantResponse{

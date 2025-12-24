@@ -17,7 +17,7 @@ type Response struct {
 // ProductResponse is the DTO for a product in the list
 type ProductResponse struct {
 	Code     string            `json:"code"`
-	Price    float64           `json:"price"`
+	Price    string            `json:"price"`
 	Category *CategoryResponse `json:"category,omitempty"`
 }
 
@@ -93,7 +93,7 @@ func (h *ListHandler) Handle(w http.ResponseWriter, r *http.Request) {
 func (h *ListHandler) toProductResponse(p products.Product) ProductResponse {
 	return ProductResponse{
 		Code:     p.Code,
-		Price:    p.Price.InexactFloat64(),
+		Price:    p.Price.String(),
 		Category: h.toCategoryResponse(p.Category),
 	}
 }
