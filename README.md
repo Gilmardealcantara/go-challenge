@@ -24,11 +24,28 @@ This repository contains a Go application for managing products and their prices
 - Ensure you have Go installed on your machine.
 - Ensure you have Docker installed on your machine.
 - Important makefile targets:
+  - `make install`: install goland and swag with [asdf](https://asdf-vm.com/guide/getting-started.html).
   - `make tidy`: will install all dependencies.
   - `make docker-up`: will start the required infrastructure services via docker containers.
   - `make seed`: ⚠️ Will destroy and re-create the database tables.
   - `make test`: Will run the tests.
   - `make run`: Will start the application.
   - `make docker-down`: Will stop the docker containers.
+  - `make test-i`: Run integration tests.
+  - `make test-i-rancher`: Run integration tests with Docker Rancher configuration.
+  - `make test-a`: Run all tests (unit + integration).
+  - `make swagger`: To generate and update api documentation
 
 Follow up for the assignemnt here: [ASSIGNMENT.md](ASSIGNMENT.md)
+
+## Endpoints
+doc: http://localhost:8484/swagger/
+```sh
+curl -X GET "http://localhost:8484/catalog" | jq
+curl -X GET "http://localhost:8484/catalog?limit=3" | jq
+curl -X GET "http://localhost:8484/catalog?limit=3&offset=2" | jq
+curl -X GET "http://localhost:8484/catalog?category=clothing" | jq
+curl -X GET "http://localhost:8484/catalog?priceLessThan=10.3" | jq
+curl -X GET "http://localhost:8484/categories" | jq
+curl -X POST http://localhost:8484/categories  -H "Content-Type: application/json" -d '{"code":"electronics","name":"Electronics"}'
+```
